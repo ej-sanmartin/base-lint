@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "build": "npm run build -w packages/cli && npm run build -w packages/action",
-    "test": "echo 'No tests configured'"
+    "test": "npm run test:unit",
+    "test:unit": "node scripts/run-unit-tests.mjs"
   }
 }
