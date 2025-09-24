@@ -1,0 +1,79 @@
+import { Command } from 'commander';
+import { runScanCommand } from './commands/scan.js';
+import { runEnforceCommand } from './commands/enforce.js';
+import { runCommentCommand } from './commands/comment.js';
+import { runAnnotateCommand } from './commands/annotate.js';
+import pkg from '../package.json' assert { type: 'json' };
+
+const program = new Command();
+
+program
+  .name('base-lint')
+  .description('Baseline-aware linting for modern web platform features')
+  .version(pkg.version ?? '0.0.0');
+
+program
+  .command('scan')
+  .description('Scan files for Baseline coverage issues')
+  .option('--mode <mode>', 'analysis mode: diff or repo', 'diff')
+  .option('--out <dir>', 'output directory for reports', '.base-lint-report')
+  .option('--strict', 'enable strict feature detection')
+  .option('--treat-newly <behavior>', 'treat Newly features as warn|error|ignore', 'warn')
+  .option('--config <path>', 'path to config file override')
+  .action(async (options) => {
+    try {
+      await runScanCommand(options);
+    } catch (error) {
+      handleError(error);
+    }
+  });
+
+program
+  .command('enforce')
+  .description('Enforce policy against a previously generated JSON report')
+  .requiredOption('--input <file>', 'path to JSON report')
+  .option('--max-limited <count>', 'maximum number of limited findings', '0')
+  .option('--fail-on-warn', 'treat Newly findings as failures')
+  .action(async (options) => {
+    try {
+      await runEnforceCommand(options);
+    } catch (error) {
+      handleError(error);
+    }
+  });
+
+program
+  .command('comment')
+  .description('Create or update a sticky pull request summary comment on GitHub')
+  .requiredOption('--input <file>', 'Markdown report to post')
+  .option('--sticky-marker <marker>', 'HTML comment marker for sticky comment', '<!-- base-lint-sticky -->')
+  .action(async (options) => {
+    try {
+      await runCommentCommand(options);
+    } catch (error) {
+      handleError(error);
+    }
+  });
+
+program
+  .command('annotate')
+  .description('Publish GitHub Checks annotations for findings')
+  .requiredOption('--input <file>', 'JSON report to annotate from')
+  .option('--batch-size <n>', 'number of annotations per API request', '50')
+  .action(async (options) => {
+    try {
+      await runAnnotateCommand(options);
+    } catch (error) {
+      handleError(error);
+    }
+  });
+
+program.parseAsync().catch((error) => {
+  handleError(error);
+});
+
+function handleError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  console.error(message);
+  process.exitCode = 1;
+}
