@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.base-lint-report/
+.DS_Store
+*.log
+coverage/
+build/
+.eslintcache
+.tmp/

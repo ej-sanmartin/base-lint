@@ -1,0 +1,24 @@
+{
+  "name": "base-lint-action",
+  "version": "0.1.0",
+  "description": "GitHub Action wrapper for the base-lint CLI",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "action.yml",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "ncc build src/index.ts -o dist",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "@actions/github": "^5.1.1"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.38.1",
+    "typescript": "^5.4.2"
+  }
+}

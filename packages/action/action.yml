@@ -1,0 +1,25 @@
+name: 'Base Lint Action'
+description: 'Run base-lint in CI, enforce policy, and post PR feedback'
+author: 'Base Lint Contributors'
+inputs:
+  mode:
+    description: 'Scan mode (diff or repo)'
+    default: 'diff'
+  max-limited:
+    description: 'Maximum allowed limited findings'
+    default: '0'
+  treat-newly-as:
+    description: 'Behavior for Newly findings (warn|error|ignore)'
+    default: 'warn'
+  comment:
+    description: 'Create or update sticky PR comment'
+    default: 'true'
+  checks:
+    description: 'Publish GitHub check annotations'
+    default: 'true'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+branding:
+  color: 'blue'
+  icon: 'shield'

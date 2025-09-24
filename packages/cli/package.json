@@ -1,0 +1,34 @@
+{
+  "name": "base-lint",
+  "version": "0.1.0",
+  "description": "Lint your repo against Web Baseline policies",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "base-lint": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --minify",
+    "dev": "tsx src/index.ts --help",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@typescript-eslint/typescript-estree": "^6.21.0",
+    "commander": "^11.1.0",
+    "globby": "^13.2.2",
+    "ignore": "^5.3.1",
+    "minimatch": "^9.0.3",
+    "node-html-parser": "^6.1.11",
+    "picocolors": "^1.0.0",
+    "postcss": "^8.4.35",
+    "web-features": "^2.0.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.1",
+    "tsx": "^4.7.1",
+    "typescript": "^5.4.2"
+  }
+}

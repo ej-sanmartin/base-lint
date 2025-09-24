@@ -1,0 +1,118 @@
+import path from 'path';
+import globby from 'globby';
+import minimatch from 'minimatch';
+import ignore from 'ignore';
+import { analyze } from '../core/analyze.js';
+import { createJsonReport } from '../core/reporters/json.js';
+import { createMarkdownReport } from '../core/reporters/markdown.js';
+import { ensureDir, writeFile, writeJSON } from '../fs-helpers.js';
+import { resolveConfig } from '../config.js';
+import { getDiffFiles } from '../git-diff.js';
+import { logger } from '../logger.js';
+import pkg from '../../package.json' assert { type: 'json' };
+
+interface ScanCommandOptions {
+  mode?: string;
+  out?: string;
+  strict?: boolean;
+  treatNewly?: string;
+  config?: string;
+}
+
+const SUPPORTED_EXTENSIONS = ['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs', '.css', '.scss', '.html', '.htm'];
+
+export async function runScanCommand(options: ScanCommandOptions): Promise<void> {
+  const cwd = process.cwd();
+  const outputDir = path.resolve(cwd, options.out ?? '.base-lint-report');
+  const resolved = await resolveConfig(cwd, options);
+  const config = resolved.config;
+
+  const files = await collectFiles(cwd, config.mode, resolved.includePatterns, resolved.ignorePatterns);
+  if (files.length === 0) {
+    logger.warn('No files matched the scan configuration.');
+  } else {
+    logger.info(`Scanning ${files.length} file(s) in ${config.mode} mode.`);
+  }
+
+  const report = await analyze({
+    cwd,
+    files,
+    strict: config.strict,
+    suppress: config.suppress ?? [],
+    treatNewlyAs: config.treatNewlyAs,
+    cliVersion: (pkg as { version?: string }).version ?? '0.0.0',
+  });
+
+  await ensureDir(outputDir);
+  await writeFile(path.join(outputDir, 'report.json'), createJsonReport(report));
+  await writeFile(path.join(outputDir, 'report.md'), createMarkdownReport(report));
+  await writeJSON(path.join(outputDir, 'meta.json'), {
+    cliVersion: report.meta.cliVersion,
+    datasetVersion: report.meta.datasetVersion,
+    generatedAt: report.meta.generatedAt,
+    config: {
+      path: resolved.configPath ?? null,
+      mode: config.mode,
+      strict: config.strict,
+      treatNewlyAs: config.treatNewlyAs,
+      maxLimited: config.maxLimited,
+      suppress: config.suppress,
+      include: config.include,
+      ignore: config.ignore,
+    },
+    filesAnalyzed: files,
+  });
+
+  logger.info(`Report written to ${outputDir}`);
+}
+
+async function collectFiles(
+  cwd: string,
+  mode: 'diff' | 'repo',
+  include: string[],
+  ignore: string[]
+): Promise<string[]> {
+  const normalizedIgnore = expandPatterns(ignore);
+  const ig = ignore();
+  ig.add(normalizedIgnore);
+  const includeMatchers = include.map((pattern) => minimatch.filter(pattern, { dot: true, matchBase: true }));
+
+  const shouldInclude = (file: string): boolean => {
+    if (!SUPPORTED_EXTENSIONS.includes(path.extname(file).toLowerCase())) {
+      return false;
+    }
+    if (ig.ignores(file)) {
+      return false;
+    }
+    if (includeMatchers.length > 0 && !includeMatchers.some((fn) => fn(file))) {
+      return false;
+    }
+    return true;
+  };
+
+  if (mode === 'repo') {
+    const patterns = include.length > 0 ? include : ['**/*'];
+    const files = await globby(patterns, {
+      cwd,
+      gitignore: true,
+      dot: true,
+      ignore: normalizedIgnore,
+      onlyFiles: true,
+    });
+    return Array.from(new Set(files.filter((file) => shouldInclude(file))));
+  }
+
+  const diffFiles = await getDiffFiles(cwd);
+  return Array.from(new Set(diffFiles.filter((file) => shouldInclude(file))));
+}
+
+function expandPatterns(patterns: string[]): string[] {
+  const expanded: string[] = [];
+  for (const pattern of patterns) {
+    expanded.push(pattern);
+    if (pattern.endsWith('/')) {
+      expanded.push(`${pattern}**`);
+    }
+  }
+  return expanded;
+}

@@ -1,0 +1,9 @@
+{
+  "name": "base-lint-demo-app",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Demo application that triggers base-lint findings",
+  "scripts": {
+    "base-lint": "base-lint scan --mode=repo --out .base-lint-report"
+  }
+}
