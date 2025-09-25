@@ -2,6 +2,12 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { spawn } from 'child_process';
 import path from 'path';
+import { pathToFileURL } from 'url';
+
+type RunBaseLintDeps = {
+  core?: Pick<typeof core, 'info'>;
+  spawn?: typeof spawn;
+};
 
 async function main(): Promise<void> {
   try {
@@ -64,10 +70,13 @@ async function main(): Promise<void> {
   }
 }
 
-async function runBaseLint(args: string[]): Promise<void> {
-  core.info(`Running base-lint ${args.join(' ')}`);
+export async function runBaseLint(args: string[], deps: RunBaseLintDeps = {}): Promise<void> {
+  const coreApi = deps.core ?? core;
+  const spawnFn = deps.spawn ?? spawn;
+
+  coreApi.info(`Running base-lint ${args.join(' ')}`);
   await new Promise<void>((resolve, reject) => {
-    const proc = spawn('npx', ['--yes', 'base-lint', ...args], {
+    const proc = spawnFn('npx', ['--yes', 'base-lint', ...args], {
       stdio: 'inherit',
     });
     proc.on('error', (error) => reject(error));
@@ -81,4 +90,10 @@ async function runBaseLint(args: string[]): Promise<void> {
   });
 }
 
-void main();
+const entryFile = process.argv[1];
+if (entryFile) {
+  const entryUrl = pathToFileURL(entryFile).href;
+  if (entryUrl === import.meta.url) {
+    void main();
+  }
+}

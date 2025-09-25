@@ -9,6 +9,9 @@
     "action.yml",
     "README.md"
   ],
+  "imports": {
+    "vitest": "../../tests/mocks/vitest.js"
+  },
   "scripts": {
     "build": "ncc build src/index.ts -o dist",
     "prepare": "npm run build"
