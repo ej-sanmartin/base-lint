@@ -10,6 +10,9 @@
   "files": [
     "dist"
   ],
+  "imports": {
+    "vitest": "../../tests/mocks/vitest.js"
+  },
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts --minify",
     "dev": "tsx src/index.ts --help",
