@@ -28,7 +28,8 @@ async function collectTestFiles(dir) {
       if (entry.isDirectory()) {
         return collectTestFiles(fullPath);
       }
-      return entry.isFile() && entry.name.endsWith('.test.ts') ? [fullPath] : [];
+      const isTestFile = entry.isFile() && (entry.name.endsWith('.test.ts') || entry.name.endsWith('.test.js'));
+      return isTestFile ? [fullPath] : [];
     }),
   );
 
@@ -48,6 +49,8 @@ const nodeArgs = [
   '--test',
   '--experimental-test-coverage',
   '--experimental-test-module-mocks',
+  '--experimental-loader',
+  path.resolve('tests/loaders/vitest-loader.mjs'),
   ...testFiles,
 ];
 

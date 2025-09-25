@@ -12,5 +12,8 @@
     "build": "npm run build -w packages/cli && npm run build -w packages/action",
     "test": "npm run test:unit",
     "test:unit": "node scripts/run-unit-tests.mjs"
+  },
+  "imports": {
+    "vitest": "./tests/mocks/vitest.js"
   }
 }
