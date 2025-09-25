@@ -79,6 +79,40 @@ CLI flags override config values, and config overrides defaults.
 - `packages/action` – the GitHub Action wrapper
 - `examples/demo-app` – a tiny demo application that triggers Limited and Newly findings
 
+## Contributing
+
+We welcome pull requests! Before opening one:
+
+1. Fork the repository and create a feature branch off `main`.
+2. Follow the development setup below to install dependencies and run the test suites locally.
+3. Keep changes focused—open separate PRs for unrelated fixes or enhancements.
+4. Adhere to the existing code style and prefer mock-driven tests so suites stay fast and deterministic.
+
+If you plan to work on a sizeable feature, consider opening an issue first to discuss the approach.
+
+## Development Setup
+
+```bash
+git clone https://github.com/your-org/base-lint.git
+cd base-lint
+npm install
+```
+
+Useful commands while developing:
+
+- `npm run build` – Compile the CLI and GitHub Action packages.
+- `npm run test:unit` – Execute the mock-focused unit test suite with coverage enforcement.
+- `npm run test:e2e` – Run the end-to-end scenarios against temporary workspaces.
+
+## Testing & Coverage
+
+All test runners are implemented as Node scripts so CI can execute them without additional tooling.
+
+- `npm test` – Runs the full suite (unit and e2e) sequentially and fails if global coverage drops below 80%.
+- `npm run coverage` – Alias for `npm test`, handy when you only need the coverage report.
+
+The repository favors mock-heavy unit tests to keep feedback loops tight. When adding new specs, prefer mocking external services, filesystem state, and process execution unless a scenario explicitly requires real integration behavior. End-to-end tests should rely on the provided helpers in `tests/e2e` to set up isolated workspaces and clean up temporary files.
+
 ## Security & Privacy
 
 Base Lint only analyzes files in your repository. It does not upload source files or Baseline data anywhere.
