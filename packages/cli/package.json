@@ -14,7 +14,7 @@
     "vitest": "../../tests/mocks/vitest.js"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts --minify",
+    "build": "tsup --config tsup.config.ts",
     "dev": "tsx src/index.ts --help",
     "prepublishOnly": "npm run build"
   },
@@ -30,6 +30,7 @@
     "web-features": "^2.0.0"
   },
   "devDependencies": {
+    "@types/node": "^20.11.30",
     "tsup": "^8.0.1",
     "tsx": "^4.7.1",
     "typescript": "^5.4.2"
