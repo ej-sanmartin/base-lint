@@ -5,7 +5,7 @@
   "license": "MIT",
   "type": "module",
   "bin": {
-    "base-lint": "./dist/index.js"
+    "base-lint": "dist/index.js"
   },
   "files": [
     "dist"
