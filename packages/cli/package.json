@@ -34,5 +34,22 @@
     "tsup": "^8.0.1",
     "tsx": "^4.7.1",
     "typescript": "^5.4.2"
-  }
+  },
+  "keywords": [
+    "lint",
+    "baseline",
+    "eslint",
+    "stylelint",
+    "typescript",
+    "javascript",
+    "css",
+    "cli",
+    "ci",
+    "bot",
+    "static-analysis",
+    "code-quality",
+    "code-style",
+    "automation",
+    "best-practices"
+  ]
 }
