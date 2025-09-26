@@ -7,6 +7,8 @@ import { context as githubContext } from '@actions/github';
 
 import { runBaseLint } from '../index.js';
 
+process.env.INPUT_CHECKS = process.env.INPUT_CHECKS ?? 'false';
+
 type EventHandler = (...args: unknown[]) => void;
 type ChildProcessLike = {
   on: (event: string, handler: EventHandler) => ChildProcessLike;
@@ -22,11 +24,6 @@ test('runBaseLint resolves when the CLI exits successfully', async (t) => {
   });
   const infoMock = t.mock.fn();
 
-  coreModule.getInput('mode');
-  coreModule.getBooleanInput('checks');
-  coreModule.warning('noop');
-  coreModule.error('noop');
-  coreModule.setFailed('noop');
   assert.deepEqual(githubContext.payload, {});
 
   const promise = runBaseLint(['scan', '--mode', 'diff'], {

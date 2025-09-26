@@ -28,7 +28,7 @@ async function collectTestFiles(dir) {
       if (entry.isDirectory()) {
         return collectTestFiles(fullPath);
       }
-      const isTestFile = entry.isFile() && (entry.name.endsWith('.test.ts') || entry.name.endsWith('.test.js'));
+      const isTestFile = entry.isFile() && entry.name.endsWith('.test.ts');
       return isTestFile ? [fullPath] : [];
     }),
   );
