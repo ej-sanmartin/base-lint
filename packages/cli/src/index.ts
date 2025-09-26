@@ -3,7 +3,7 @@ import { runScanCommand } from './commands/scan.js';
 import { runEnforceCommand } from './commands/enforce.js';
 import { runCommentCommand } from './commands/comment.js';
 import { runAnnotateCommand } from './commands/annotate.js';
-import pkg from '../package.json' assert { type: 'json' };
+import pkg from '../package.json' with { type: 'json' };
 
 const program = new Command();
 

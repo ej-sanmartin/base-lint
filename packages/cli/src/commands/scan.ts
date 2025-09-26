@@ -1,6 +1,6 @@
 import path from 'path';
-import globby from 'globby';
-import minimatch from 'minimatch';
+import { globby } from 'globby';
+import { minimatch } from 'minimatch';
 import ignore from 'ignore';
 import { analyze } from '../core/analyze.js';
 import { createJsonReport } from '../core/reporters/json.js';
