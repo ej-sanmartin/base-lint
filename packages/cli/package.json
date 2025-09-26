@@ -1,6 +1,6 @@
 {
   "name": "base-lint",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Lint your repo against Web Baseline policies",
   "license": "MIT",
   "type": "module",
