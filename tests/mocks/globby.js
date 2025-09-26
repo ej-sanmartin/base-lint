@@ -50,7 +50,7 @@ function normalizeIgnore(patterns = []) {
   });
 }
 
-async function globby(patterns, options = {}) {
+export async function globby(patterns, options = {}) {
   const cwd = options.cwd ? path.resolve(options.cwd) : process.cwd();
   const results = new Set();
   const ignorePatterns = normalizeIgnore(options.ignore);

@@ -11,6 +11,7 @@ const aliasEntries = [
   ['globby', path.join(repoRoot, 'tests/mocks/globby.js')],
   ['minimatch', path.join(repoRoot, 'tests/mocks/minimatch.js')],
   ['ignore', path.join(repoRoot, 'tests/mocks/ignore.js')],
+  ['web-features/data.json', path.join(repoRoot, 'tests/mocks/web-features/data.json')],
   ['web-features/package.json', path.join(repoRoot, 'tests/mocks/web-features/package.json')],
   ['web-features/data/features.json', path.join(repoRoot, 'tests/mocks/web-features/data/features.json')],
 ];

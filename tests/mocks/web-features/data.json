@@ -1,0 +1,19 @@
+{
+  "features": {
+    "web.usb": {
+      "name": "WebUSB API",
+      "status": { "baseline": false },
+      "compat_features": []
+    },
+    "css.has-selector": {
+      "name": ":has() selector",
+      "status": { "baseline": "low" },
+      "compat_features": []
+    },
+    "web.share": {
+      "name": "Web Share API",
+      "status": { "baseline": "high" },
+      "compat_features": []
+    }
+  }
+}

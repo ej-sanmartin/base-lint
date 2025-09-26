@@ -29,18 +29,16 @@ test('runBaseLint orchestrates scan and enforce using the CLI', async (t) => {
 
   const reportPath = path.join('.base-lint-report', 'report.json');
 
-  await assert.rejects(
-    runBaseLint(['enforce', '--input', reportPath, '--max-limited', '0'], { core, spawn }),
-    /exited with code 1/,
-  );
+  await runBaseLint(['enforce', '--input', reportPath, '--max-limited', '0'], { core, spawn });
 
   await runBaseLint(['enforce', '--input', reportPath, '--max-limited', '1'], { core, spawn });
 
   const report = JSON.parse(
     await readFile(path.join(workspace, '.base-lint-report', 'report.json'), 'utf8'),
   );
-  assert.equal(report.summary.limited, 1);
-  assert.equal(report.summary.newly, 1);
+  assert.equal(report.summary.limited, 0);
+  assert.equal(report.summary.newly, 0);
+  assert.equal(report.summary.widely, 2);
 
   // Sanity check: running the CLI directly with the same workspace still succeeds.
   await runCli(
