@@ -5,5 +5,8 @@
   "description": "Demo application that triggers base-lint findings",
   "scripts": {
     "base-lint": "base-lint scan --mode=repo --out .base-lint-report"
+  },
+  "devDependencies": {
+    "base-lint": "workspace:packages/cli"
   }
 }
