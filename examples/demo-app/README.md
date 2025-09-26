@@ -11,3 +11,9 @@ Run the CLI from the repository root to generate a report:
 npm install
 npx base-lint scan --mode=repo --out .base-lint-report
 ```
+
+After installing dependencies, you can also run the bundled script directly from the demo app directory:
+
+```bash
+npm run base-lint
+```
