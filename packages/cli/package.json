@@ -1,8 +1,21 @@
 {
   "name": "base-lint",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Lint your repo against Web Baseline policies",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ej-sanmartin/base-lint/issues"
+  },
+  "homepage": "https://github.com/web-baseline/base-lint#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ej-sanmartin/base-lint",
+    "directory": "packages/cli"
+  },
+  "funding": {
+    "type": "individual",
+    "url": "https://Ko-fi.com/esanmartin"
+  },
   "type": "module",
   "bin": {
     "base-lint": "dist/index.js"
