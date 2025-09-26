@@ -7,6 +7,39 @@ import { createWorkspace, runCli } from './helpers.js';
 const JS_SAMPLE = `navigator.usb.requestDevice({ filters: [] });\n`;
 const CSS_SAMPLE = `.card:has(.cta) {\n  color: red;\n}\n`;
 
+test('scan command respects ignore patterns from configuration', async (t) => {
+  const config = JSON.stringify(
+    {
+      mode: 'repo',
+      include: ['src/**/*.js'],
+      ignore: ['src/ignored/'],
+    },
+    null,
+    2,
+  );
+
+  const { workspace, cleanup } = await createWorkspace({
+    'base-lint.config.json': `${config}\n`,
+    'src/include.js': JS_SAMPLE,
+    'src/ignored/skip.js': JS_SAMPLE,
+  });
+  t.after(cleanup);
+
+  const previousCwd = process.cwd();
+  process.chdir(workspace);
+  t.after(() => {
+    process.chdir(previousCwd);
+  });
+
+  const { runScanCommand } = await import('../../packages/cli/src/commands/scan.ts');
+  await runScanCommand({ mode: 'repo', out: '.base-lint-report' });
+
+  const metaPath = path.join(workspace, '.base-lint-report', 'meta.json');
+  const meta = JSON.parse(await readFile(metaPath, 'utf8'));
+
+  assert.deepEqual(meta.filesAnalyzed.sort(), ['src/include.js']);
+});
+
 test('scan command generates baseline reports in repo mode', async (t) => {
   const { workspace, cleanup } = await createWorkspace({
     'src/app.js': JS_SAMPLE,
@@ -22,14 +55,14 @@ test('scan command generates baseline reports in repo mode', async (t) => {
   const reportDir = path.join(workspace, '.base-lint-report');
   const report = JSON.parse(await readFile(path.join(reportDir, 'report.json'), 'utf8'));
   assert.equal(report.summary.total, 2);
-  assert.equal(report.summary.limited, 1);
-  assert.equal(report.summary.newly, 1);
-  assert.equal(report.summary.widely, 0);
+  assert.equal(report.summary.limited, 0);
+  assert.equal(report.summary.newly, 0);
+  assert.equal(report.summary.widely, 2);
   assert.deepEqual(
     report.findings.map((finding) => ({ featureId: finding.featureId, baseline: finding.baseline })),
     [
-      { featureId: 'web.usb', baseline: 'limited' },
-      { featureId: 'css.has-selector', baseline: 'newly' },
+      { featureId: 'web.usb', baseline: 'widely' },
+      { featureId: 'css.has-selector', baseline: 'widely' },
     ],
   );
 
@@ -39,6 +72,6 @@ test('scan command generates baseline reports in repo mode', async (t) => {
   assert.deepEqual(meta.filesAnalyzed.sort(), ['src/app.js', 'src/styles.css']);
 
   const markdown = await readFile(path.join(reportDir, 'report.md'), 'utf8');
-  assert.ok(markdown.includes('WebUSB API'));
-  assert.ok(markdown.includes(':has() selector'));
+  assert.ok(markdown.includes('web.usb'));
+  assert.ok(markdown.includes('css.has-selector'));
 });

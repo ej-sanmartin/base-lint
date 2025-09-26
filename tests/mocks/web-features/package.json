@@ -3,6 +3,7 @@
   "version": "0.0.0-test",
   "type": "module",
   "exports": {
+    "./data.json": "./data.json",
     "./data/features.json": "./data/features.json",
     "./package.json": "./package.json"
   }

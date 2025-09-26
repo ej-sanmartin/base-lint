@@ -70,9 +70,9 @@ async function collectFiles(
   cwd: string,
   mode: 'diff' | 'repo',
   include: string[],
-  ignore: string[]
+  ignorePatterns: string[]
 ): Promise<string[]> {
-  const normalizedIgnore = expandPatterns(ignore);
+  const normalizedIgnore = expandPatterns(ignorePatterns);
   const ig = ignore();
   ig.add(normalizedIgnore);
   const includeMatchers = include.map((pattern) => minimatch.filter(pattern, { dot: true, matchBase: true }));
