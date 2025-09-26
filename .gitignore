@@ -1,5 +1,6 @@
 node_modules/
 dist/
+!/packages/action/dist/
 .base-lint-report/
 .DS_Store
 *.log

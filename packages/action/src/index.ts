@@ -93,7 +93,15 @@ export async function runBaseLint(args: string[], deps: RunBaseLintDeps = {}): P
 const entryFile = process.argv[1];
 if (entryFile) {
   const entryUrl = pathToFileURL(entryFile).href;
-  if (entryUrl === import.meta.url) {
+  let isDirectEsmExecution = false;
+  try {
+    isDirectEsmExecution = entryUrl === import.meta.url;
+  } catch {
+    // `import.meta` is unavailable in CommonJS builds.
+  }
+
+  const isDirectCjsExecution = typeof require !== 'undefined' && require.main === module;
+  if (isDirectEsmExecution || isDirectCjsExecution) {
     void main();
   }
 }
