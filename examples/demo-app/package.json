@@ -7,6 +7,6 @@
     "base-lint": "base-lint scan --mode=repo --out .base-lint-report"
   },
   "devDependencies": {
-    "base-lint": "^1.0.1"
+    "base-lint": "^1.0.2"
   }
 }
