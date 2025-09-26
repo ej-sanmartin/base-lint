@@ -16,3 +16,11 @@ npm install --save-dev base-lint
 - `base-lint comment` – maintain a sticky pull request summary comment.
 
 Run `npx base-lint --help` for the full flag list.
+
+## TypeScript compatibility
+
+`base-lint` relies on `@typescript-eslint/typescript-estree` to parse TypeScript and
+JavaScript sources. The CLI suppresses the parser's unsupported TypeScript version
+banner by default, but the effective compatibility remains tied to the versions that
+`@typescript-eslint/typescript-estree` supports. Using newer or older TypeScript
+releases may lead to parsing errors until they are adopted by the upstream parser.

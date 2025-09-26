@@ -1,15 +1,25 @@
 import { parse } from '@typescript-eslint/typescript-estree';
 import type { TSESTree } from '@typescript-eslint/typescript-estree';
 
+let parseImplementation = parse;
+
+export function __setParseImplementationForTesting(
+  implementation: typeof parse | null,
+): void {
+  parseImplementation = implementation ?? parse;
+}
+
 export function parseJavaScript(code: string, filePath: string): TSESTree.Program | null {
   try {
-    return parse(code, {
+    return parseImplementation(code, {
       loc: true,
       range: true,
       jsx: filePath.endsWith('x'),
       comment: false,
       errorOnUnknownASTType: false,
       useJSXTextNode: true,
+      warnOnUnsupportedTypeScriptVersion: false,
+      loggerFn: () => {},
     });
   } catch (error) {
     return null;
