@@ -9,6 +9,7 @@ import { ensureDir, writeFile, writeJSON } from '../fs-helpers.js';
 import { resolveConfig } from '../config.js';
 import { getDiffFiles } from '../git-diff.js';
 import { logger } from '../logger.js';
+import { formatMarkdownSummary } from '../core/reporters/summary.js';
 import pkg from '../../package.json' assert { type: 'json' };
 
 interface ScanCommandOptions {
@@ -17,6 +18,7 @@ interface ScanCommandOptions {
   strict?: boolean;
   treatNewly?: string;
   config?: string;
+  printFullReport?: boolean;
 }
 
 const SUPPORTED_EXTENSIONS = ['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs', '.css', '.scss', '.html', '.htm'];
@@ -44,8 +46,9 @@ export async function runScanCommand(options: ScanCommandOptions): Promise<void>
   });
 
   await ensureDir(outputDir);
+  const markdownReport = createMarkdownReport(report);
   await writeFile(path.join(outputDir, 'report.json'), createJsonReport(report));
-  await writeFile(path.join(outputDir, 'report.md'), createMarkdownReport(report));
+  await writeFile(path.join(outputDir, 'report.md'), markdownReport);
   await writeJSON(path.join(outputDir, 'meta.json'), {
     cliVersion: report.meta.cliVersion,
     datasetVersion: report.meta.datasetVersion,
@@ -62,6 +65,11 @@ export async function runScanCommand(options: ScanCommandOptions): Promise<void>
     },
     filesAnalyzed: files,
   });
+
+  const summary = options.printFullReport ? markdownReport : formatMarkdownSummary(markdownReport);
+  if (summary.trim().length > 0) {
+    console.log(summary);
+  }
 
   logger.info(`Report written to ${outputDir}`);
 }
@@ -116,3 +124,4 @@ function expandPatterns(patterns: string[]): string[] {
   }
   return expanded;
 }
+
