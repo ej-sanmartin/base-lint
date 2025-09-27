@@ -29,7 +29,10 @@ test('runBaseLint orchestrates scan and enforce using the CLI', async (t) => {
 
   const reportPath = path.join('.base-lint-report', 'report.json');
 
-  await runBaseLint(['enforce', '--input', reportPath, '--max-limited', '0'], { core, spawn });
+  await assert.rejects(
+    runBaseLint(['enforce', '--input', reportPath, '--max-limited', '0'], { core, spawn }),
+    /exited with code 1/,
+  );
 
   await runBaseLint(['enforce', '--input', reportPath, '--max-limited', '1'], { core, spawn });
 

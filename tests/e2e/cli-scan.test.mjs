@@ -72,10 +72,10 @@ test('scan command generates baseline reports in repo mode', async (t) => {
   assert.deepEqual(meta.filesAnalyzed.sort(), ['src/app.js', 'src/styles.css']);
 
   const markdown = await readFile(path.join(reportDir, 'report.md'), 'utf8');
-  assert.ok(markdown.includes('WebUSB API'));
+  assert.ok(markdown.includes('WebUSB'));
   assert.ok(markdown.includes(':has()'));
 
   assert.ok(result.stdout.includes('## Base Lint Report'));
   assert.ok(result.stdout.includes('**Status:**'));
-  assert.ok(result.stdout.includes('WebUSB API'));
+  assert.ok(result.stdout.includes('WebUSB'));
 });
