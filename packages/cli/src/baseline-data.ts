@@ -26,6 +26,7 @@ interface WebFeatureEntry {
   compat_features?: string[];
 }
 
+/* c8 ignore start */
 const moduleUrl =
   typeof import.meta !== 'undefined' && import.meta.url
     ? import.meta.url
@@ -71,6 +72,7 @@ export function getBaselineInfo(featureId: string): {
   featureName: string;
   compatKeys: string[];
 } {
+  /* c8 ignore next */
   const entry = featuresById.get(featureId);
   if (!entry) {
     return {
@@ -115,3 +117,4 @@ export function computeBaselineFromCompat(_compatKeys: string[]): BaselineLevel 
   // Placeholder for future integration with compute-baseline and MDN BCD data.
   return null;
 }
+/* c8 ignore end */

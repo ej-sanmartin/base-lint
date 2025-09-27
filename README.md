@@ -57,7 +57,7 @@ Create an optional `base-lint.config.json` at the repository root:
   "maxLimited": 0,
   "strict": false,
   "targets": "all",
-  "suppress": ["css.has-selector"],
+  "suppress": ["has"],
   "include": [],
   "ignore": []
 }
@@ -80,6 +80,23 @@ CLI flags override config values, and config overrides defaults.
 - `packages/cli` – the `base-lint` CLI
 - `packages/action` – the GitHub Action wrapper
 - `examples/demo-app` – a tiny demo application that triggers Limited and Newly findings
+
+### Demo app Baseline snapshot
+
+Running the CLI against `examples/demo-app` (or `npm run base-lint` from that workspace) produces a report with both Limited and Newly findings:
+
+```
+## Base Lint Report
+**Status:** ❌ Limited: 2 · ⚠️ Newly: 1 · ✅ Widely: 0
+
+| File | Line | Feature | Baseline |
+|------|------|---------|----------|
+| examples/demo-app/src/app.tsx | 3 | navigator.share() | Limited |
+| examples/demo-app/src/app.tsx | 4 | navigator.share() | Limited |
+| examples/demo-app/src/styles.css | 1 | :has() | Newly |
+```
+
+The sample highlights the Web Share API (Baseline Limited) and the CSS `:has()` selector (Baseline Newly), making it easy to validate integrations end-to-end.
 
 ## Contributing
 
@@ -108,6 +125,13 @@ Useful commands while developing:
 - `npm run test:unit` – Execute the Node Test Runner-based unit suite with coverage enforcement.
 - `npm run test:e2e` – Run the end-to-end scenarios against temporary workspaces.
 - `npm test` – Run unit + e2e suites sequentially (same as `npm run coverage`).
+
+To execute an individual spec with Node's test runner (useful while iterating on a single file), point the command at the
+repository's loader so TypeScript modules and aliases resolve correctly:
+
+```bash
+node --test --import tsx --experimental-loader ./tests/loaders/vitest-loader.mjs packages/cli/src/__tests__/feature-map.test.ts
+```
 
 ## Testing & Coverage
 

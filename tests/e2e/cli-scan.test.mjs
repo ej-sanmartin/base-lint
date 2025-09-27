@@ -55,14 +55,14 @@ test('scan command generates baseline reports in repo mode', async (t) => {
   const reportDir = path.join(workspace, '.base-lint-report');
   const report = JSON.parse(await readFile(path.join(reportDir, 'report.json'), 'utf8'));
   assert.equal(report.summary.total, 2);
-  assert.equal(report.summary.limited, 0);
-  assert.equal(report.summary.newly, 0);
-  assert.equal(report.summary.widely, 2);
+  assert.equal(report.summary.limited, 1);
+  assert.equal(report.summary.newly, 1);
+  assert.equal(report.summary.widely, 0);
   assert.deepEqual(
     report.findings.map((finding) => ({ featureId: finding.featureId, baseline: finding.baseline })),
     [
-      { featureId: 'web.usb', baseline: 'widely' },
-      { featureId: 'css.has-selector', baseline: 'widely' },
+      { featureId: 'webusb', baseline: 'limited' },
+      { featureId: 'has', baseline: 'newly' },
     ],
   );
 
@@ -72,10 +72,10 @@ test('scan command generates baseline reports in repo mode', async (t) => {
   assert.deepEqual(meta.filesAnalyzed.sort(), ['src/app.js', 'src/styles.css']);
 
   const markdown = await readFile(path.join(reportDir, 'report.md'), 'utf8');
-  assert.ok(markdown.includes('web.usb'));
-  assert.ok(markdown.includes('css.has-selector'));
+  assert.ok(markdown.includes('WebUSB API'));
+  assert.ok(markdown.includes(':has()'));
 
   assert.ok(result.stdout.includes('## Base Lint Report'));
   assert.ok(result.stdout.includes('**Status:**'));
-  assert.ok(result.stdout.includes('web.usb'));
+  assert.ok(result.stdout.includes('WebUSB API'));
 });
