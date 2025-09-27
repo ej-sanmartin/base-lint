@@ -18,6 +18,7 @@
   - [`base-lint enforce`](#base-lint-enforce)
   - [`base-lint annotate`](#base-lint-annotate)
   - [`base-lint comment`](#base-lint-comment)
+  - [`base-lint clean`](#base-lint-clean)
 - [Advanced usage](#advanced-usage)
   - [Configuration](#configuration)
 
@@ -63,6 +64,7 @@
 - [`base-lint enforce`](#base-lint-enforce) – Fail fast in CI when findings exceed your thresholds.
 - [`base-lint annotate`](#base-lint-annotate) – Upload inline GitHub Checks from the latest scan.
 - [`base-lint comment`](#base-lint-comment) – Maintain a sticky PR summary comment.
+- [`base-lint clean`](#base-lint-clean) – Remove generated report artifacts between runs.
 
 ## Installation
 
@@ -131,6 +133,16 @@ npx base-lint comment --input .base-lint-report/report.md
 ```
 
 The CLI reads the Markdown file, looks for `GITHUB_TOKEN`, `GITHUB_REPOSITORY`, and `GITHUB_EVENT_NAME`, and only posts to pull-request events to avoid noise on other triggers. Existing comments containing the `<!-- base-lint-sticky -->` marker are updated in place; otherwise a new comment is created.
+
+### `base-lint clean`
+
+Delete the generated report directory (default: `.base-lint-report/`) to start fresh.
+
+```bash
+npx base-lint clean --out .base-lint-report
+```
+
+The command removes the configured directory with `rm -rf` semantics and logs the result. Pair it with `scan` in CI workflows that prefer ephemeral artifacts or when switching between branches locally to avoid stale reports.
 
 ## Advanced usage
 

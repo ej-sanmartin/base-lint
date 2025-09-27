@@ -8,6 +8,7 @@ import { formatWithOptions } from 'node:util';
 
 const repoRoot = path.resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const SUPPORTED_EXTENSIONS = new Set(['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs', '.css', '.scss', '.html', '.htm']);
+const REPORT_DIRECTORY_NAME = '.base-lint-report';
 
 export async function createWorkspace(structure) {
   const tempRoot = await mkdtemp(path.join(tmpdir(), 'base-lint-e2e-'));
@@ -57,6 +58,14 @@ export async function runCli(args, { cwd } = {}) {
       capture.restore();
     }
   }
+  if (command === 'clean') {
+    try {
+      await executeClean(cwd, options);
+      return capture.output();
+    } finally {
+      capture.restore();
+    }
+  }
   try {
     throw new Error(`Unsupported CLI command: ${command}`);
   } finally {
@@ -85,7 +94,7 @@ export function createActionSpawner(workspace) {
 }
 
 async function executeScan(cwd, options) {
-  const outDir = options.out ?? '.base-lint-report';
+  const outDir = options.out ?? REPORT_DIRECTORY_NAME;
   const reportDir = path.resolve(cwd, outDir);
   const treatNewly = options.treatNewly ?? 'warn';
   const strict = Boolean(options.strict);
@@ -160,6 +169,14 @@ async function executeEnforce(cwd, options) {
   if (resultingCode !== 0) {
     throw new Error(`enforce command exited with code ${resultingCode}`);
   }
+}
+
+async function executeClean(cwd, options) {
+  const { runCleanCommand } = await import('../../packages/cli/src/commands/clean.ts');
+  const resolvedOut = options.out
+    ? path.resolve(cwd, options.out)
+    : path.join(cwd, REPORT_DIRECTORY_NAME);
+  await runCleanCommand({ out: resolvedOut });
 }
 
 function parseOptions(args) {
@@ -240,7 +257,7 @@ async function collectWorkspaceFiles(cwd) {
     for (const entry of entries) {
       const relativePath = path.join(relativeDir, entry.name);
       if (entry.isDirectory()) {
-        if (entry.name === 'node_modules' || entry.name === '.base-lint-report') {
+        if (entry.name === 'node_modules' || entry.name === REPORT_DIRECTORY_NAME) {
           continue;
         }
         await walk(relativePath);
@@ -255,3 +272,5 @@ async function collectWorkspaceFiles(cwd) {
     }
   }
 }
+
+export const REPORT_DIRECTORY = REPORT_DIRECTORY_NAME;

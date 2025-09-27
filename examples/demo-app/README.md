@@ -21,6 +21,7 @@ Run the CLI from the repository root to generate a report:
 ```bash
 npm install
 npx base-lint scan --mode=repo --out .base-lint-report
+npx base-lint clean --out .base-lint-report
 ```
 
 > **Note**

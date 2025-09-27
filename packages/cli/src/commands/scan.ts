@@ -11,6 +11,7 @@ import { getDiffFiles } from '../git-diff.js';
 import { logger } from '../logger.js';
 import { formatMarkdownSummary } from '../core/reporters/summary.js';
 import pkg from '../../package.json' assert { type: 'json' };
+import { DEFAULT_REPORT_DIRECTORY } from '../constants.js';
 
 interface ScanCommandOptions {
   mode?: string;
@@ -25,7 +26,7 @@ const SUPPORTED_EXTENSIONS = ['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs', '.cs
 
 export async function runScanCommand(options: ScanCommandOptions): Promise<void> {
   const cwd = process.cwd();
-  const outputDir = path.resolve(cwd, options.out ?? '.base-lint-report');
+  const outputDir = path.resolve(cwd, options.out ?? DEFAULT_REPORT_DIRECTORY);
   const resolved = await resolveConfig(cwd, options);
   const config = resolved.config;
 

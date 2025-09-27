@@ -3,6 +3,8 @@ import { runScanCommand } from './commands/scan.js';
 import { runEnforceCommand } from './commands/enforce.js';
 import { runCommentCommand } from './commands/comment.js';
 import { runAnnotateCommand } from './commands/annotate.js';
+import { runCleanCommand } from './commands/clean.js';
+import { DEFAULT_REPORT_DIRECTORY } from './constants.js';
 import pkg from '../package.json' with { type: 'json' };
 
 const program = new Command();
@@ -16,7 +18,7 @@ program
   .command('scan')
   .description('Scan files for Baseline coverage issues')
   .option('--mode <mode>', 'analysis mode: diff or repo', 'diff')
-  .option('--out <dir>', 'output directory for reports', '.base-lint-report')
+  .option('--out <dir>', 'output directory for reports', DEFAULT_REPORT_DIRECTORY)
   .option('--strict', 'enable strict feature detection')
   .option('--treat-newly <behavior>', 'treat Newly features as warn|error|ignore', 'warn')
   .option('--config <path>', 'path to config file override')
@@ -64,6 +66,18 @@ program
   .action(async (options) => {
     try {
       await runAnnotateCommand(options);
+    } catch (error) {
+      handleError(error);
+    }
+  });
+
+program
+  .command('clean')
+  .description('Remove generated Baseline report artifacts')
+  .option('--out <dir>', 'report directory to delete', DEFAULT_REPORT_DIRECTORY)
+  .action(async (options) => {
+    try {
+      await runCleanCommand(options);
     } catch (error) {
       handleError(error);
     }
