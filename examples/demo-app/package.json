@@ -4,9 +4,10 @@
   "version": "0.1.0",
   "description": "Demo application that triggers base-lint findings",
   "scripts": {
-    "base-lint": "base-lint scan --mode=repo --out .base-lint-report"
+    "base-lint": "base-lint scan --mode=repo --out .base-lint-report",
+    "clean": "base-lint clean"
   },
   "devDependencies": {
-    "base-lint": "^1.0.4"
+    "base-lint": "^1.0.5"
   }
 }
