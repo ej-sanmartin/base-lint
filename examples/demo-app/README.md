@@ -5,6 +5,17 @@ Tiny demo project with a couple of features that Base Lint will flag:
 - CSS `:has()` selector (Baseline Newly)
 - `navigator.share` Web API (Baseline Limited)
 
+```
+## Base Lint Report
+**Status:** ❌ Limited: 2 · ⚠️ Newly: 1 · ✅ Widely: 0
+
+| File | Line | Feature | Baseline |
+|------|------|---------|----------|
+| examples/demo-app/src/app.tsx | 3 | navigator.share() | Limited |
+| examples/demo-app/src/app.tsx | 4 | navigator.share() | Limited |
+| examples/demo-app/src/styles.css | 1 | :has() | Newly |
+```
+
 Run the CLI from the repository root to generate a report:
 
 ```bash

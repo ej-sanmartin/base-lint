@@ -90,6 +90,7 @@ export async function runBaseLint(args: string[], deps: RunBaseLintDeps = {}): P
   });
 }
 
+/* c8 ignore start */
 const entryFile = process.argv[1];
 if (entryFile) {
   const entryUrl = pathToFileURL(entryFile).href;
@@ -105,3 +106,4 @@ if (entryFile) {
     void main();
   }
 }
+/* c8 ignore end */

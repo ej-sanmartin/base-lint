@@ -43,15 +43,15 @@ export function detectCssFeatures(root: Root): Detection[] {
     if (node.type === 'rule') {
       const selector = node.selector ?? '';
       if (selector.includes(':has(')) {
-        detections.push(createDetection('css.has-selector', ':has() selector', node));
+        detections.push(createDetection('has', ':has() selector', node));
       }
       if (selector.includes(':where(')) {
-        detections.push(createDetection('css.where-selector', ':where() selector', node));
+        detections.push(createDetection('where', ':where() selector', node));
       }
     }
     if (node.type === 'atrule') {
       if (node.name === 'container') {
-        detections.push(createDetection('css.container-queries', '@container queries', node));
+        detections.push(createDetection('container-queries', '@container queries', node));
       }
     }
   });
@@ -69,19 +69,19 @@ function detectMemberExpression(node: TSESTree.MemberExpression, options: JsDete
   }
   const mapping: Record<string, Detection | undefined> = {
     'navigator.share': {
-      featureId: 'web.share',
+      featureId: 'share',
       featureName: 'Web Share API',
       line: node.property.loc?.start.line ?? node.loc?.start.line ?? null,
       column: (node.property.loc?.start.column ?? node.loc?.start.column ?? 0) + 1,
     },
     'navigator.usb': {
-      featureId: 'web.usb',
+      featureId: 'webusb',
       featureName: 'WebUSB API',
       line: node.property.loc?.start.line ?? node.loc?.start.line ?? null,
       column: (node.property.loc?.start.column ?? node.loc?.start.column ?? 0) + 1,
     },
     'Notification.requestPermission': {
-      featureId: 'web.notifications',
+      featureId: 'notifications',
       featureName: 'Notifications API',
       line: node.property.loc?.start.line ?? node.loc?.start.line ?? null,
       column: (node.property.loc?.start.column ?? node.loc?.start.column ?? 0) + 1,
@@ -95,7 +95,7 @@ function detectConstructor(node: TSESTree.NewExpression): Detection | null {
     const name = node.callee.name;
     if (name === 'Notification') {
       return {
-        featureId: 'web.notifications',
+        featureId: 'notifications',
         featureName: 'Notifications API',
         line: node.callee.loc?.start.line ?? node.loc?.start.line ?? null,
         column: (node.callee.loc?.start.column ?? node.loc?.start.column ?? 0) + 1,
@@ -103,7 +103,7 @@ function detectConstructor(node: TSESTree.NewExpression): Detection | null {
     }
     if (name === 'BroadcastChannel') {
       return {
-        featureId: 'web.broadcast-channel',
+        featureId: 'broadcast-channel',
         featureName: 'BroadcastChannel API',
         line: node.callee.loc?.start.line ?? node.loc?.start.line ?? null,
         column: (node.callee.loc?.start.column ?? node.loc?.start.column ?? 0) + 1,
@@ -111,7 +111,7 @@ function detectConstructor(node: TSESTree.NewExpression): Detection | null {
     }
     if (name === 'IdleDetector') {
       return {
-        featureId: 'web.idle-detection',
+        featureId: 'idle-detection',
         featureName: 'Idle Detection API',
         line: node.callee.loc?.start.line ?? node.loc?.start.line ?? null,
         column: (node.callee.loc?.start.column ?? node.loc?.start.column ?? 0) + 1,
@@ -127,7 +127,7 @@ function detectGlobalIdentifier(node: TSESTree.Identifier, parent: TSESTree.Node
       return null;
     }
     return {
-      featureId: 'web.idle-detection',
+      featureId: 'idle-detection',
       featureName: 'Idle Detection API',
       line: node.loc?.start.line ?? null,
       column: (node.loc?.start.column ?? 0) + 1,
@@ -149,6 +149,18 @@ function createDetection(featureId: string, featureName: string, node: Rule | At
 function getIdentifierName(node: TSESTree.LeftHandSideExpression): string | null {
   if (node.type === 'Identifier') {
     return node.name;
+  }
+  /* c8 ignore next 3 */
+  if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
+    return getIdentifierName(node.expression as TSESTree.LeftHandSideExpression);
+  }
+  /* c8 ignore next 3 */
+  if (node.type === 'TSNonNullExpression') {
+    return getIdentifierName(node.expression as TSESTree.LeftHandSideExpression);
+  }
+  /* c8 ignore next 3 */
+  if (node.type === 'ChainExpression') {
+    return getIdentifierName(node.expression as TSESTree.LeftHandSideExpression);
   }
   if (node.type === 'MemberExpression') {
     if (node.property.type === 'Identifier' && !node.computed) {
