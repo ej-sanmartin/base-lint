@@ -4,6 +4,7 @@ import path from 'node:path';
 import { EventEmitter } from 'node:events';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import { formatWithOptions } from 'node:util';
 
 const repoRoot = path.resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const SUPPORTED_EXTENSIONS = new Set(['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs', '.css', '.scss', '.html', '.htm']);
@@ -38,16 +39,29 @@ export async function runCli(args, { cwd } = {}) {
 
   const [command, ...rest] = args;
   const options = normalizeOptions(parseOptions(rest));
+  const capture = interceptConsole();
 
   if (command === 'scan') {
-    await executeScan(cwd, options);
-    return;
+    try {
+      await executeScan(cwd, options);
+      return capture.output();
+    } finally {
+      capture.restore();
+    }
   }
   if (command === 'enforce') {
-    await executeEnforce(cwd, options);
-    return;
+    try {
+      await executeEnforce(cwd, options);
+      return capture.output();
+    } finally {
+      capture.restore();
+    }
   }
-  throw new Error(`Unsupported CLI command: ${command}`);
+  try {
+    throw new Error(`Unsupported CLI command: ${command}`);
+  } finally {
+    capture.restore();
+  }
 }
 
 export function createActionSpawner(workspace) {
@@ -78,10 +92,11 @@ async function executeScan(cwd, options) {
   const files = await collectWorkspaceFiles(cwd);
 
   const cliPackage = JSON.parse(await readFile(path.join(repoRoot, 'packages/cli/package.json'), 'utf8'));
-  const [{ analyze }, { createJsonReport }, { createMarkdownReport }] = await Promise.all([
+  const [{ analyze }, { createJsonReport }, { createMarkdownReport }, { formatMarkdownSummary }] = await Promise.all([
     import('../../packages/cli/src/core/analyze.ts'),
     import('../../packages/cli/src/core/reporters/json.ts'),
     import('../../packages/cli/src/core/reporters/markdown.ts'),
+    import('../../packages/cli/src/core/reporters/summary.ts'),
   ]);
 
   const report = await analyze({
@@ -93,9 +108,11 @@ async function executeScan(cwd, options) {
     cliVersion: cliPackage.version ?? '0.0.0',
   });
 
+  const markdownReport = createMarkdownReport(report);
+
   await mkdir(reportDir, { recursive: true });
   await writeFileFs(path.join(reportDir, 'report.json'), createJsonReport(report), 'utf8');
-  await writeFileFs(path.join(reportDir, 'report.md'), createMarkdownReport(report), 'utf8');
+  await writeFileFs(path.join(reportDir, 'report.md'), markdownReport, 'utf8');
 
   const meta = {
     cliVersion: report.meta.cliVersion,
@@ -114,6 +131,13 @@ async function executeScan(cwd, options) {
     filesAnalyzed: files,
   };
   await writeFileFs(path.join(reportDir, 'meta.json'), JSON.stringify(meta, null, 2), 'utf8');
+
+  const summary = formatMarkdownSummary(markdownReport);
+  if (summary.trim().length > 0) {
+    console.log(summary);
+  }
+
+  console.log(`[base-lint] Report written to ${reportDir}`);
 }
 
 async function executeEnforce(cwd, options) {
@@ -164,6 +188,45 @@ function normalizeOptions(raw) {
 
 function toCamelCase(key) {
   return key.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+}
+
+function interceptConsole() {
+  const stdout = [];
+  const warnings = [];
+  const stderr = [];
+  const original = {
+    log: console.log,
+    warn: console.warn,
+    error: console.error,
+  };
+
+  console.log = (...args) => {
+    stdout.push(formatWithOptions({ colors: false }, ...args));
+  };
+  console.warn = (...args) => {
+    warnings.push(formatWithOptions({ colors: false }, ...args));
+  };
+  console.error = (...args) => {
+    stderr.push(formatWithOptions({ colors: false }, ...args));
+  };
+
+  return {
+    output() {
+      return {
+        stdout: stdout.join('\n'),
+        stdoutLines: [...stdout],
+        warnings: warnings.join('\n'),
+        warningsLines: [...warnings],
+        stderr: stderr.join('\n'),
+        stderrLines: [...stderr],
+      };
+    },
+    restore() {
+      console.log = original.log;
+      console.warn = original.warn;
+      console.error = original.error;
+    },
+  };
 }
 
 async function collectWorkspaceFiles(cwd) {

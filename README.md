@@ -44,6 +44,8 @@ npx base-lint annotate --input .base-lint-report/report.json
 npx base-lint comment --input .base-lint-report/report.md
 ```
 
+`base-lint scan` prints a condensed Markdown summary to stdout after writing the reports. Pass `--print-full-report` or open `.base-lint-report/report.md` for the full table when you need additional context.
+
 ## Configuration
 
 Create an optional `base-lint.config.json` at the repository root:

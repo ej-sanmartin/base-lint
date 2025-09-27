@@ -45,12 +45,13 @@
 
    > 💡 **Diff vs. full scan:** Omit `--mode=diff` to analyze the entire codebase, which is helpful for scheduled audits or first-time rollouts.
 
-3. **Interpret the results** from the generated Markdown summary:
+3. **Interpret the results** from the generated Markdown summary (a condensed version prints to the terminal after each scan):
 
    ```bash
    cat .base-lint-report/report.md
    ```
 
+   - Pass `--print-full-report` to `scan` to stream the entire Markdown table to stdout.
    - The Markdown file includes a status badge and tables you can paste into pull requests.
    - The accompanying `report.json` is consumable by automation (see [`enforce`](#base-lint-enforce)).
 
@@ -97,7 +98,7 @@ Analyze your repository (or just the current diff) and emit structured reports.
 npx base-lint scan --mode=diff --out .base-lint-report
 ```
 
-By default the CLI outputs to `.base-lint-report/` in the current working directory. Every run writes `report.json`, `report.md`, and `meta.json`, then prints the folder location to stdout. The Markdown report includes a status summary and a table of findings that you can link from PR descriptions or surface in GitHub comments.
+By default the CLI outputs to `.base-lint-report/` in the current working directory. Every run writes `report.json`, `report.md`, and `meta.json`, then prints both a condensed Markdown summary (or the full table with `--print-full-report`) and the folder location to stdout. The Markdown report includes a status summary and a table of findings that you can link from PR descriptions or surface in GitHub comments.
 
 ### `base-lint enforce`
 

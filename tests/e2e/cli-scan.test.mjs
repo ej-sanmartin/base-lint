@@ -47,7 +47,7 @@ test('scan command generates baseline reports in repo mode', async (t) => {
   });
   t.after(cleanup);
 
-  await runCli(
+  const result = await runCli(
     ['scan', '--mode', 'repo', '--out', '.base-lint-report', '--treat-newly', 'warn'],
     { cwd: workspace },
   );
@@ -74,4 +74,8 @@ test('scan command generates baseline reports in repo mode', async (t) => {
   const markdown = await readFile(path.join(reportDir, 'report.md'), 'utf8');
   assert.ok(markdown.includes('web.usb'));
   assert.ok(markdown.includes('css.has-selector'));
+
+  assert.ok(result.stdout.includes('## Base Lint Report'));
+  assert.ok(result.stdout.includes('**Status:**'));
+  assert.ok(result.stdout.includes('web.usb'));
 });
