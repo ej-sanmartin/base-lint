@@ -1,0 +1,16 @@
+{
+  "mode": "diff",
+  "strict": true,
+  "treatNewlyAs": "warn",
+  "maxLimited": 0,
+  "targets": "all",
+  "suppress": [],
+  "include": [
+    "src/**/*.{ts,tsx,css}",
+    "public/**/*.html"
+  ],
+  "ignore": [
+    "**/*.test.{ts,tsx}",
+    "src/mocks/**"
+  ]
+}
