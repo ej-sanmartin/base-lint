@@ -37,14 +37,33 @@ jobs:
 
 ```bash
 npm i -D base-lint
-npx base-lint scan --mode=diff --out .base-lint-report
-npx base-lint enforce --input .base-lint-report/report.json --max-limited 0
+npx base-lint scan
+npx base-lint enforce --input .base-lint-report/report.json
 # optional GitHub integrations
 npx base-lint annotate --input .base-lint-report/report.json
 npx base-lint comment --input .base-lint-report/report.md
 ```
 
 `base-lint scan` prints a condensed Markdown summary to stdout after writing the reports. Pass `--print-full-report` or open `.base-lint-report/report.md` for the full table when you need additional context.
+
+| Command | Flag | Default | Description |
+| --- | --- | --- | --- |
+| `scan` | `--mode <mode>` | `diff` | Analysis mode (`diff` or `repo`). |
+|  | `--out <dir>` | `.base-lint-report` | Output directory for generated reports. |
+|  | `--strict` | `false` | Enables strict feature detection. |
+|  | `--treat-newly <behavior>` | `warn` | Controls whether Newly findings warn, error, or are ignored. |
+|  | `--config <path>` | — | Override path to `base-lint.config.json`. |
+|  | `--print-full-report` | `false` | Prints the full Markdown report to stdout. |
+| `enforce` | `--input <file>` | Required | Path to a JSON report emitted by `scan`. |
+|  | `--max-limited <count>` | `0` | Maximum allowed Limited findings before failing. |
+|  | `--fail-on-warn` | `false` | Treat Newly findings as failures. |
+| `annotate` | `--input <file>` | Required | JSON report to create GitHub Checks annotations from. |
+|  | `--batch-size <n>` | `50` | Number of annotations sent per API request. |
+| `comment` | `--input <file>` | Required | Markdown report used for the sticky PR comment. |
+|  | `--sticky-marker <marker>` | `<!-- base-lint-sticky -->` | HTML marker for locating the sticky comment. |
+| `clean` | `--out <dir>` | `.base-lint-report` | Report directory to delete. |
+
+Prefer setting defaults once? Configure them in [`base-lint.config.json`](#configuration).
 
 ## Configuration
 
