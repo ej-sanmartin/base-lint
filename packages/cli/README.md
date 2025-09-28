@@ -189,7 +189,37 @@ Dive deeper into configuration and automation patterns once the basics are in pl
 
 ### Configuration
 
-- **`base-lint.config.json`** – Optional configuration file resolved from the repository root (or the path you pass to `--config`). Use it to set defaults for scan mode, failure thresholds, suppressions, and path include/ignore lists.
-- **`.base-lintignore`** – Optional ignore file that uses `.gitignore` semantics and is merged with the built-in ignore list (`node_modules/`, `dist/`, `build/`, `coverage/`, `*.min.js`).
+- **`base-lint.config.json`** – Optional configuration file resolved from the repository root (or the path you pass to `--config`).
+  - **`mode`** (default: `"diff"`) – Scan only the current Git diff (`"diff"`) or the entire repository (`"repo"`). Diff mode keeps PR noise low; repo mode suits full audits and rollouts.
+  - **`treatNewlyAs`** (default: `"warn"`) – Control how Newly Baseline findings behave. Pick `"warn"` to surface issues without failing, `"error"` to block merges, or `"ignore"` when you only care about Limited features.
+  - **`maxLimited`** (default: `0`) – Maximum Limited findings tolerated by `base-lint enforce`. Increase it to phase Base Lint in while you fix legacy gaps.
+  - **`strict`** (default: `false`) – Enable stricter detection heuristics (for example, computed property access). Useful when you want the strongest signal, otherwise leave off to avoid noisy dynamic cases.
+  - **`targets`** (default: `"all"`) – Reserved for upcoming Baseline targeting controls. Stick with the default unless you are experimenting with pre-release dataset filters.
+  - **`suppress`** (default: `[]`) – List Baseline feature IDs to mute after you have documented fallbacks or accepted the risk.
+  - **`include`** (default: `[]`) – Glob patterns that act as an allowlist. Empty means “consider everything the mode collects”; provide paths such as `"src/**/*"` to narrow the scan.
+  - **`ignore`** (default: `[]`) – Additional ignore globs that apply to all runs. These are added on top of the built-in defaults and anything in `.base-lintignore`.
+- **`.base-lintignore`** – Optional ignore file that uses `.gitignore` semantics. Base Lint appends its entries to the core defaults and config ignores during resolution (see [`packages/cli/src/config.ts`](./src/config.ts)).
+
+Default ignore entries:
+
+```
+node_modules/
+dist/
+build/
+coverage/
+*.min.js
+```
+
+Example `.base-lintignore` snippet:
+
+```
+# Skip generated Storybook output checked into docs
+storybook-static/
+
+# Drop vendored playground builds
+apps/*/sandbox/dist/
+```
+
+Use the `ignore` array in `base-lint.config.json` for repository-wide exclusions that every environment should share, and reserve `.base-lintignore` for local or ephemeral directories that individual developers need to silence without editing the shared config.
 
 Configuration files override the CLI defaults, and direct flags always win over configuration. For full option descriptions and additional examples, see the [Base Lint configuration guide](../../README.md#configuration).
