@@ -38,11 +38,13 @@ jobs:
 ```bash
 npm i -D base-lint
 npx base-lint scan
-npx base-lint enforce --input .base-lint-report/report.json
+npx base-lint enforce
 # optional GitHub integrations
 npx base-lint annotate --input .base-lint-report/report.json
 npx base-lint comment --input .base-lint-report/report.md
 ```
+
+`base-lint enforce` automatically reads `.base-lint-report/report.json`. If `scan` writes to a custom `--out`, pass the matching `--input` when enforcing (for example, `base-lint enforce --input custom-dir/report.json`).
 
 > ℹ️ **GitHub Actions context:** `base-lint annotate` and `base-lint comment` assume they are running inside GitHub Actions wher
 e `GITHUB_TOKEN`, `GITHUB_REPOSITORY`, `GITHUB_EVENT_NAME`, and `GITHUB_SHA` are automatically provided. Other CI or local enviro
@@ -59,7 +61,7 @@ on/README.md`](packages/action/README.md) for how the token is issued and why fo
 |  | `--treat-newly <behavior>` | `warn` | Controls whether Newly findings warn, error, or are ignored. |
 |  | `--config <path>` | — | Override path to `base-lint.config.json`. |
 |  | `--print-full-report` | `false` | Prints the full Markdown report to stdout. |
-| `enforce` | `--input <file>` | Required | Path to a JSON report emitted by `scan`. |
+| `enforce` | `--input <file>` | `.base-lint-report/report.json` | Path to a JSON report emitted by `scan` (override when `scan --out` changes). |
 |  | `--max-limited <count>` | `0` | Maximum allowed Limited findings before failing. |
 |  | `--fail-on-warn` | `false` | Treat Newly findings as failures. |
 | `annotate` | `--input <file>` | Required | JSON report to create GitHub Checks annotations from. |
