@@ -44,6 +44,11 @@ npx base-lint annotate --input .base-lint-report/report.json
 npx base-lint comment --input .base-lint-report/report.md
 ```
 
+> ℹ️ **GitHub Actions context:** `base-lint annotate` and `base-lint comment` assume they are running inside GitHub Actions wher
+e `GITHUB_TOKEN`, `GITHUB_REPOSITORY`, `GITHUB_EVENT_NAME`, and `GITHUB_SHA` are automatically provided. Other CI or local enviro
+nments must supply equivalent environment variables securely (see the [GitHub Action example](#github-action) or [`packages/acti
+on/README.md`](packages/action/README.md) for how the token is issued and why forked pull requests are skipped).
+
 `base-lint scan` prints a condensed Markdown summary to stdout after writing the reports. Pass `--print-full-report` or open `.base-lint-report/report.md` for the full table when you need additional context.
 
 | Command | Flag | Default | Description |
