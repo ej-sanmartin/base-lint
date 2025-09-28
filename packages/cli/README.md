@@ -118,14 +118,16 @@ Prefer to change these defaults globally? See [Configuration](#configuration).
 Gate your CI workflow based on the JSON scan results.
 
 ```bash
-npx base-lint enforce --input .base-lint-report/report.json
+npx base-lint enforce
 ```
+
+`base-lint enforce` automatically reads `.base-lint-report/report.json`. If `scan` writes to a custom `--out`, pass the matching `--input` when enforcing (for example, `base-lint enforce --input custom-dir/report.json`).
 
 `--max-limited` defaults to `0`, so the command fails if any Limited findings remain. Set `--fail-on-warn` (or configure `treatNewlyAs: "error"`) when Newly findings should also block merges.
 
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--input <file>` | Required | JSON report emitted by `scan`. |
+| `--input <file>` | `.base-lint-report/report.json` | JSON report emitted by `scan` (override when `scan --out` changes). |
 | `--max-limited <count>` | `0` | Maximum allowed Limited findings before failing. |
 | `--fail-on-warn` | `false` | Treat Newly findings as failures. |
 

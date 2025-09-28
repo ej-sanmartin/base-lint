@@ -54,6 +54,12 @@ export async function runCli(args, { cwd } = {}) {
     try {
       await executeEnforce(cwd, options);
       return capture.output();
+    } catch (error) {
+      const output = capture.output();
+      if (error && typeof error === 'object') {
+        error.output = output;
+      }
+      throw error;
     } finally {
       capture.restore();
     }
@@ -153,16 +159,15 @@ async function executeEnforce(cwd, options) {
   const { runEnforceCommand } = await import('../../packages/cli/src/commands/enforce.ts');
   const previousExitCode = process.exitCode;
   process.exitCode = 0;
-  const inputPath = options.input ? path.resolve(cwd, options.input) : undefined;
-
-  if (!inputPath) {
-    throw new Error('enforce command requires an input report path.');
-  }
+  const defaultReport = path.join(REPORT_DIRECTORY_NAME, 'report.json');
+  const inputPath = options.input ? path.resolve(cwd, options.input) : path.resolve(cwd, defaultReport);
+  const inputSource = options.input ? 'cli' : 'default';
 
   await runEnforceCommand({
     input: inputPath,
     maxLimited: options.maxLimited,
     failOnWarn: options.failOnWarn,
+    inputSource,
   });
   const resultingCode = process.exitCode ?? 0;
   process.exitCode = previousExitCode ?? undefined;

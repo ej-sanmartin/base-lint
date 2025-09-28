@@ -4,7 +4,7 @@ import { runEnforceCommand } from './commands/enforce.js';
 import { runCommentCommand } from './commands/comment.js';
 import { runAnnotateCommand } from './commands/annotate.js';
 import { runCleanCommand } from './commands/clean.js';
-import { DEFAULT_REPORT_DIRECTORY } from './constants.js';
+import { DEFAULT_REPORT_DIRECTORY, DEFAULT_REPORT_PATH } from './constants.js';
 import pkg from '../package.json' with { type: 'json' };
 
 const program = new Command();
@@ -34,12 +34,15 @@ program
 program
   .command('enforce')
   .description('Enforce policy against a previously generated JSON report')
-  .requiredOption('--input <file>', 'path to JSON report')
+  .option('--input <file>', 'path to JSON report', DEFAULT_REPORT_PATH)
   .option('--max-limited <count>', 'maximum number of limited findings', '0')
   .option('--fail-on-warn', 'treat Newly findings as failures')
-  .action(async (options) => {
+  .action(async (options, command) => {
     try {
-      await runEnforceCommand(options);
+      await runEnforceCommand({
+        ...options,
+        inputSource: command.getOptionValueSource('input'),
+      });
     } catch (error) {
       handleError(error);
     }
