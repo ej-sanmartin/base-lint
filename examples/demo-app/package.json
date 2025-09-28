@@ -8,6 +8,6 @@
     "clean": "base-lint clean"
   },
   "devDependencies": {
-    "base-lint": "^1.0.5"
+    "base-lint": "^1.0.6"
   }
 }
