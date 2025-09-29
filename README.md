@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: your-org/base-lint-action@v1
+      - uses: <owner>/<repo>@<tag>
         with:
           mode: diff
           max-limited: 0
@@ -32,6 +32,10 @@ jobs:
           comment: true
           checks: true
 ```
+
+The GitHub Action metadata now lives at the repository root in [`action.yml`](./action.yml) while the compiled bundle continues
+to ship from [`packages/action/dist`](packages/action/dist). Build and commit the bundle whenever you update the TypeScript
+sources so published tags include the refreshed JavaScript.
 
 ### CLI
 
@@ -203,10 +207,12 @@ The repository favors mock-heavy unit tests to keep feedback loops tight. When a
 
 ### Release the GitHub Action to the Marketplace
 
-1. Update the version in `packages/action/package.json` and `packages/action/action.yml`.
+1. Update the version in `packages/action/package.json`, `packages/action/action.yml`, and the root [`action.yml`](./action.yml) so both manifests stay in sync.
 2. Rebuild the bundle with `npm run build -w packages/action` and commit the resulting `packages/action/dist` output.
 3. Create a Git tag (`git tag action-vX.Y.Z && git push origin action-vX.Y.Z`).
 4. Draft a GitHub release that points to the new tag—Marketplace listings pick up the bundled `dist/` assets automatically.
+
+Refer to the [`packages/action` release checklist](packages/action/README.md#release-checklist) for the package-level perspective on the same workflow.
 
 ## Security & Privacy
 
