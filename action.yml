@@ -1,6 +1,6 @@
 # NOTE: Keep this manifest in sync with packages/action/action.yml
 name: 'Base Lint Action'
-description: 'Run base-lint in CI, enforce policy, and post PR feedback'
+description: 'Run base-lint in CI to enforce baseline accessibility standards and automatically comment with PR feedback.'
 author: 'Base Lint Contributors'
 inputs:
   mode:
