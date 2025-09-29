@@ -1,4 +1,4 @@
-# NOTE: Keep this manifest in sync with /action.yml
+# NOTE: Keep this manifest in sync with packages/action/action.yml
 name: 'Base Lint Action'
 description: 'Run base-lint in CI, enforce policy, and post PR feedback'
 author: 'Base Lint Contributors'
@@ -20,7 +20,7 @@ inputs:
     default: 'true'
 runs:
   using: 'node20'
-  main: 'dist/index.js'
+  main: 'packages/action/dist/index.js'
 branding:
   color: 'blue'
   icon: 'shield'
