@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: <owner>/<repo>@<tag>
+      - uses: ej-sanmartin/base-lint@base-lint-action-vX.Y.Z
         with:
           mode: diff
           max-limited: 0
@@ -37,7 +37,8 @@ jobs:
 
 The GitHub Action metadata now lives at the repository root in [`action.yml`](./action.yml) while the compiled bundle continues
 to ship from [`packages/action/dist`](packages/action/dist). Build and commit the bundle whenever you update the TypeScript
-sources so published tags include the refreshed JavaScript.
+sources so published tags include the refreshed JavaScript. Marketplace releases follow the `base-lint-action-v*` tag naming
+rule (for example, `base-lint-action-v1.0.0`).
 
 ### CLI
 

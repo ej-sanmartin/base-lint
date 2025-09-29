@@ -5,7 +5,7 @@ GitHub Action wrapper for the `base-lint` CLI. See [`packages/cli`](../cli) for 
 ## Usage
 
 ```yaml
-- uses: <owner>/<repo>@<tag>
+- uses: ej-sanmartin/base-lint@base-lint-action-vX.Y.Z
   with:
     mode: diff
     max-limited: 0
