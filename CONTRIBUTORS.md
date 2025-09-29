@@ -59,7 +59,8 @@ The repository favors mock-heavy unit tests to keep feedback loops tight. When a
 
 1. Update the version in `packages/action/package.json`, `packages/action/action.yml`, and the root [`action.yml`](./action.yml) so both manifests stay in sync.
 2. Rebuild the bundle with `npm run build -w packages/action` and commit the resulting `packages/action/dist` output.
-3. Create a Git tag (`git tag action-vX.Y.Z && git push origin action-vX.Y.Z`).
-4. Draft a GitHub release that points to the new tag—Marketplace listings pick up the bundled `dist/` assets automatically.
+3. Verify the tag naming matches the `base-lint-action-v*` pattern before publishing (for example, `git tag --list 'base-lint-action-v*'`).
+4. Create a Git tag (`git tag base-lint-action-vX.Y.Z && git push origin base-lint-action-vX.Y.Z`).
+5. Draft a GitHub release that points to the new tag—Marketplace listings pick up the bundled `dist/` assets automatically.
 
 Refer to the [`packages/action` release checklist](packages/action/README.md#release-checklist) for the package-level perspective on the same workflow.
