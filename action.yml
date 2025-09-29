@@ -22,5 +22,5 @@ runs:
   using: 'node20'
   main: 'packages/action/dist/index.js'
 branding:
-  color: 'blue'
+  color: 'green'
   icon: 'shield'
