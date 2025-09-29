@@ -2,7 +2,7 @@
 
 > Lint your repo against Web Baseline. PR-safe. Zero-config.
 
-[![CI](https://img.shields.io/badge/ci-passing-green.svg)](#) [![npm](https://img.shields.io/badge/npm-base--lint-orange.svg)](#) [![GitHub release](https://img.shields.io/badge/action-base--lint--action-blue.svg)](#)
+[![CI](https://img.shields.io/badge/ci-passing-green.svg)](#) [![npm](https://img.shields.io/badge/npm-base--lint-orange.svg)](https://www.npmjs.com/package/base-lint) [![GitHub release](https://img.shields.io/badge/action-base--lint--action-blue.svg)](https://github.com/marketplace/actions/base-lint-action)
 
 ![Baseline Shield Logo Thumbnail](assets/base-lint-thumbnail.png)
 
