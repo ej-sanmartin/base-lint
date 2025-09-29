@@ -26,6 +26,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: ej-sanmartin/base-lint@base-lint-action-vX.Y.Z
         with:
           mode: diff
@@ -34,6 +36,8 @@ jobs:
           comment: true
           checks: true
 ```
+
+Diff mode needs the base commit to be present locally, so configure `actions/checkout` with `fetch-depth: 0` (or switch Base Lint to `mode: repo`) to avoid fetching only the latest commit. Without the deeper history, Base Lint falls back to scanning nothing and reports “No files matched the scan configuration.”
 
 The GitHub Action metadata now lives at the repository root in [`action.yml`](./action.yml) while the compiled bundle continues
 to ship from [`packages/action/dist`](packages/action/dist). Build and commit the bundle whenever you update the TypeScript
