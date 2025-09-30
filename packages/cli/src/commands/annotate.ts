@@ -8,6 +8,11 @@ interface AnnotateOptions {
   batchSize?: string;
 }
 
+interface PullRequestContext {
+  isFork: boolean;
+  headSha?: string;
+}
+
 export async function runAnnotateCommand(options: AnnotateOptions): Promise<void> {
   const cwd = process.cwd();
   const inputPath = path.resolve(cwd, options.input);
@@ -16,12 +21,14 @@ export async function runAnnotateCommand(options: AnnotateOptions): Promise<void
   const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
   const repo = process.env.GITHUB_REPOSITORY;
   const eventName = process.env.GITHUB_EVENT_NAME ?? '';
-  const sha = process.env.GITHUB_SHA;
+  const envSha = process.env.GITHUB_SHA;
 
-  if (!token || !repo || !sha) {
+  if (!token || !repo) {
     logger.info('GitHub context not detected. Skipping annotations.');
     return;
   }
+
+  let sha = envSha;
 
   if (eventName.startsWith('pull_request')) {
     const context = await readPullRequestContext();
@@ -29,6 +36,14 @@ export async function runAnnotateCommand(options: AnnotateOptions): Promise<void
       logger.info('Pull request originates from a fork. Skipping annotations.');
       return;
     }
+    if (context?.headSha) {
+      sha = context.headSha;
+    }
+  }
+
+  if (!sha) {
+    logger.info('GitHub context not detected. Skipping annotations.');
+    return;
   }
 
   const annotations = buildAnnotations(report.findings, report.meta.treatNewlyAs);
@@ -170,7 +185,7 @@ function determineConclusion(report: Report): 'success' | 'failure' | 'neutral' 
   return 'success';
 }
 
-async function readPullRequestContext(): Promise<{ isFork: boolean } | null> {
+async function readPullRequestContext(): Promise<PullRequestContext | null> {
   const eventPath = process.env.GITHUB_EVENT_PATH;
   if (!eventPath) {
     return null;
@@ -180,7 +195,8 @@ async function readPullRequestContext(): Promise<{ isFork: boolean } | null> {
     const baseRepo = payload?.pull_request?.base?.repo?.full_name;
     const headRepo = payload?.pull_request?.head?.repo?.full_name;
     const isFork = Boolean(headRepo && baseRepo && headRepo !== baseRepo);
-    return { isFork };
+    const headSha = typeof payload?.pull_request?.head?.sha === 'string' ? payload.pull_request.head.sha : undefined;
+    return { isFork, headSha };
   } catch (error) {
     logger.warn(`Failed to read event payload: ${(error as Error).message}`);
     return null;
