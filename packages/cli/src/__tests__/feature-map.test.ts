@@ -5,6 +5,7 @@ import { mkdtemp, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 
 import { analyze } from '../core/analyze.js';
+import { logger } from '../logger.js';
 import { getBaselineInfo } from '../baseline-data.js';
 import { parseJavaScript } from '../utils/ast-js.js';
 import { parseCSS } from '../utils/ast-css.js';
@@ -165,9 +166,13 @@ test('getBaselineInfo normalizes dataset statuses', () => {
 });
 
 test('analyze skips missing files and suppressed detections', async (t) => {
+  const warnMock = t.mock.method(logger, 'warn', () => {});
   const workspace = await mkdtemp(path.join(tmpdir(), 'base-lint-missing-'));
   t.after(async () => {
     await rm(workspace, { recursive: true, force: true });
+  });
+  t.after(() => {
+    warnMock.mock.restore();
   });
 
   const js = `navigator.usb.requestDevice({ filters: [] });`;
