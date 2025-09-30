@@ -173,18 +173,49 @@ child.on('close', (code, signal) => {
 
   if (!metrics) {
     const coverageLine = lines[coverageLineIndex];
-    const match = coverageLine.match(/\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)/);
-    if (!match) {
+    const directMatch = coverageLine.match(/\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)/);
+
+    if (directMatch) {
+      const [, linePercent, branchPercent, funcPercent] = directMatch;
+      metrics = {
+        lines: Number.parseFloat(linePercent),
+        branches: Number.parseFloat(branchPercent),
+        functions: Number.parseFloat(funcPercent),
+      };
+    } else {
+      const columns = parseColumns(coverageLine);
+
+      const extractPercentage = (label) => {
+        const columnIndex = columns.findIndex((column) => column.toLowerCase().includes(label));
+        if (columnIndex === -1) {
+          return undefined;
+        }
+
+        const match = columns[columnIndex].match(/([\d.]+)\s*%\s*$/);
+        if (!match) {
+          return undefined;
+        }
+
+        const [, value] = match;
+        const numeric = Number.parseFloat(value);
+        return Number.isNaN(numeric) ? undefined : numeric;
+      };
+
+      const parsedMetrics = {
+        lines: extractPercentage('lines'),
+        branches: extractPercentage('branch'),
+        functions: extractPercentage('func'),
+      };
+
+      if (Object.values(parsedMetrics).every((value) => typeof value === 'number')) {
+        metrics = parsedMetrics;
+      }
+    }
+
+    if (!metrics) {
       console.error('Unable to parse coverage percentages from summary line:', coverageLine);
       process.exit(1);
     }
-
-    const [, linePercent, branchPercent, funcPercent] = match;
-    metrics = {
-      lines: Number.parseFloat(linePercent),
-      branches: Number.parseFloat(branchPercent),
-      functions: Number.parseFloat(funcPercent),
-    };
   }
 
   const failures = Object.entries(metrics).filter(([, value]) => value < threshold);
