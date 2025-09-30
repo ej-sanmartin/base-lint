@@ -2,6 +2,7 @@ import path from 'path';
 import { globby } from 'globby';
 import { minimatch } from 'minimatch';
 import ignore from 'ignore';
+import type { OptionValueSource } from 'commander';
 import { analyze } from '../core/analyze.js';
 import { formatReport } from '../core/formats/index.js';
 import { ensureDir, writeFile, writeJSON } from '../fs-helpers.js';
@@ -11,10 +12,14 @@ import { logger } from '../logger.js';
 import { formatMarkdownSummary } from '../core/reporters/summary.js';
 import pkg from '../../package.json' assert { type: 'json' };
 import { DEFAULT_REPORT_DIRECTORY } from '../constants.js';
+import type { ReportFormat } from '../core/formats/index.js';
 
 interface ScanCommandOptions {
   mode?: string;
   out?: string;
+  outFormat?: string;
+  outFile?: string;
+  outFormatSource?: OptionValueSource;
   strict?: boolean;
   treatNewly?: string;
   config?: string;
@@ -67,9 +72,36 @@ export async function runScanCommand(options: ScanCommandOptions): Promise<void>
     filesAnalyzed: files,
   });
 
-  const summary = options.printFullReport ? markdownReport : formatMarkdownSummary(markdownReport);
-  if (summary.trim().length > 0) {
-    console.log(summary);
+  const requestedFormatInput = (options.outFormat ?? 'md').toLowerCase();
+  const supportedFormats: ReportFormat[] = ['md', 'json', 'sarif'];
+  if (!supportedFormats.includes(requestedFormatInput as ReportFormat)) {
+    throw new Error(
+      `Invalid value for --out-format: ${options.outFormat}. Supported formats are ${supportedFormats.join(', ')}.`
+    );
+  }
+
+  const requestedFormat = requestedFormatInput as ReportFormat;
+  const formattedReport = formatReport(report, { format: requestedFormat });
+  const outFilePath = options.outFile ? path.resolve(cwd, options.outFile) : undefined;
+  const shouldPrintSummary =
+    requestedFormat === 'md' &&
+    (options.outFormatSource === undefined || options.outFormatSource === 'default');
+
+  if (shouldPrintSummary) {
+    const summary = options.printFullReport ? markdownReport : formatMarkdownSummary(markdownReport);
+    if (summary.trim().length > 0) {
+      console.log(summary);
+    }
+  }
+
+  if (outFilePath) {
+    await ensureDir(path.dirname(outFilePath));
+    await writeFile(outFilePath, formattedReport);
+  } else {
+    process.stdout.write(formattedReport);
+    if (!formattedReport.endsWith('\n')) {
+      process.stdout.write('\n');
+    }
   }
 
   logger.info(`Report written to ${outputDir}`);
