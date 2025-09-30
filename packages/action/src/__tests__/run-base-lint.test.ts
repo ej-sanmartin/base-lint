@@ -19,12 +19,20 @@ test('runBaseLint resolves when the CLI exits successfully', async (t) => {
   const spawnMock = t.mock.fn((command: string, args: string[], options: SpawnOptions) => {
     assert.equal(command, 'npx');
     assert.deepEqual(args, ['--yes', 'base-lint', 'scan', '--mode', 'diff']);
-    assert.deepEqual(options, { stdio: 'inherit' });
+    assert.equal(options?.stdio, 'inherit');
+    assert.equal(options?.env?.GITHUB_TOKEN, 'test-token');
+    assert.equal(options?.env?.GH_TOKEN, 'test-token');
     return createChildProcess(events);
   });
   const infoMock = t.mock.fn();
 
   assert.deepEqual(githubContext.payload, {});
+
+  const originalToken = process.env.GITHUB_TOKEN;
+  process.env.GITHUB_TOKEN = 'test-token';
+  t.after(() => {
+    process.env.GITHUB_TOKEN = originalToken;
+  });
 
   const promise = runBaseLint(['scan', '--mode', 'diff'], {
     spawn: spawnMock,
@@ -45,6 +53,16 @@ test('runBaseLint rejects when the CLI exits with a non-zero code', async (t) =>
   const spawnMock = t.mock.fn(() => createChildProcess(events));
   const infoMock = t.mock.fn();
 
+  const originalToken = process.env.GITHUB_TOKEN;
+  delete process.env.GITHUB_TOKEN;
+  t.after(() => {
+    if (originalToken === undefined) {
+      delete process.env.GITHUB_TOKEN;
+    } else {
+      process.env.GITHUB_TOKEN = originalToken;
+    }
+  });
+
   const promise = runBaseLint(['enforce'], {
     spawn: spawnMock,
     core: { info: infoMock },
@@ -61,6 +79,16 @@ test('runBaseLint rejects when the process emits an error event', async (t) => {
   const events = new Map<string, EventHandler>();
   const spawnMock = t.mock.fn(() => createChildProcess(events));
   const infoMock = t.mock.fn();
+
+  const originalToken = process.env.GITHUB_TOKEN;
+  delete process.env.GITHUB_TOKEN;
+  t.after(() => {
+    if (originalToken === undefined) {
+      delete process.env.GITHUB_TOKEN;
+    } else {
+      process.env.GITHUB_TOKEN = originalToken;
+    }
+  });
 
   const promise = runBaseLint(['scan'], {
     spawn: spawnMock,

@@ -7,6 +7,7 @@ GitHub Action wrapper for the `base-lint` CLI. See [`packages/cli`](../cli) for 
 ```yaml
 - uses: ej-sanmartin/base-lint@base-lint-action-vX.Y.Z
   with:
+    github-token: ${{ github.token }}
     mode: diff
     max-limited: 0
     treat-newly-as: warn
