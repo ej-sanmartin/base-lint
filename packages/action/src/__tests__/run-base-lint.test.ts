@@ -1,8 +1,11 @@
 import test from 'node:test';
+import type { TestContext } from 'node:test';
 import assert from 'node:assert/strict';
 import type { SpawnOptions } from 'node:child_process';
+import { createRequire } from 'node:module';
 
-import * as coreModule from '@actions/core';
+const require = createRequire(import.meta.url);
+const coreModule = require('@actions/core') as typeof import('@actions/core');
 import { context as githubContext } from '@actions/github';
 
 import { runBaseLint } from '../index.js';
@@ -52,6 +55,7 @@ test('runBaseLint rejects when the CLI exits with a non-zero code', async (t) =>
   const events = new Map<string, EventHandler>();
   const spawnMock = t.mock.fn(() => createChildProcess(events));
   const infoMock = t.mock.fn();
+  mockWarning(t);
 
   const originalToken = process.env.GITHUB_TOKEN;
   delete process.env.GITHUB_TOKEN;
@@ -79,6 +83,7 @@ test('runBaseLint rejects when the process emits an error event', async (t) => {
   const events = new Map<string, EventHandler>();
   const spawnMock = t.mock.fn(() => createChildProcess(events));
   const infoMock = t.mock.fn();
+  mockWarning(t);
 
   const originalToken = process.env.GITHUB_TOKEN;
   delete process.env.GITHUB_TOKEN;
@@ -101,6 +106,17 @@ test('runBaseLint rejects when the process emits an error event', async (t) => {
 
   await assert.rejects(promise, /spawn failed/);
 });
+
+function mockWarning(t: TestContext) {
+  const descriptor = Object.getOwnPropertyDescriptor(coreModule, 'warning');
+  assert.ok(descriptor && 'value' in descriptor, 'core.warning should be a method');
+
+  const warningMock = t.mock.method(coreModule, 'warning', () => {});
+
+  t.after(() => {
+    warningMock.mock.restore();
+  });
+}
 
 function createChildProcess(events: Map<string, EventHandler>): ChildProcessLike {
   return {
