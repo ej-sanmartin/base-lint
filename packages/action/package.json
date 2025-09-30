@@ -1,6 +1,6 @@
 {
   "name": "base-lint-action",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "GitHub Action wrapper for the base-lint CLI, which lints your repo against Web Baseline policies.",
   "license": "MIT",
   "main": "dist/index.js",

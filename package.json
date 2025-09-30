@@ -1,7 +1,7 @@
 {
   "name": "base-lint-monorepo",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Monorepo for the base-lint CLI and GitHub Action",
   "license": "MIT",
   "workspaces": [
