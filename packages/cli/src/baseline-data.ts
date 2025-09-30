@@ -92,11 +92,11 @@ export function getBaselineInfo(featureId: string): {
 export function getGuidanceFor(level: BaselineLevel): string {
   switch (level) {
     case 'limited':
-      return 'Provide fallback UI or feature detection for unsupported browsers.';
+      return 'Baseline Limited means the feature is not yet broadly supported—provide fallback UI or feature detection for unsupported browsers.';
     case 'newly':
-      return 'OK for modern targets; keep a fallback in place for older browsers.';
+      return 'Baseline Newly means the feature only recently entered Baseline—OK for modern targets, but keep a fallback in place for older browsers.';
     default:
-      return 'No action required.';
+      return 'Baseline Widely means the feature is broadly supported—no action required.';
   }
 }
 
