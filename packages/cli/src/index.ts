@@ -19,13 +19,18 @@ program
   .description('Scan files for Baseline coverage issues')
   .option('--mode <mode>', 'analysis mode: diff or repo', 'diff')
   .option('--out <dir>', 'output directory for reports', DEFAULT_REPORT_DIRECTORY)
+  .option('--out-format <format>', 'format of stdout/file output: md|json|sarif', 'md')
+  .option('--out-file <file>', 'path to write the formatted report output')
   .option('--strict', 'enable strict feature detection')
   .option('--treat-newly <behavior>', 'treat Newly features as warn|error|ignore', 'warn')
   .option('--config <path>', 'path to config file override')
   .option('--print-full-report', 'print the full Markdown report to stdout')
-  .action(async (options) => {
+  .action(async (options, command) => {
     try {
-      await runScanCommand(options);
+      await runScanCommand({
+        ...options,
+        outFormatSource: command.getOptionValueSource('out-format'),
+      });
     } catch (error) {
       handleError(error);
     }
