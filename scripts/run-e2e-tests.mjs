@@ -42,14 +42,27 @@ if (testFiles.length === 0) {
   process.exit(1);
 }
 
+const { register: moduleRegister } = await import('node:module').catch(() => ({ register: undefined }));
+const supportsModuleRegister = typeof moduleRegister === 'function';
+
 const tsxImport = pathToFileURL(path.resolve('node_modules/tsx/dist/esm/index.mjs')).href;
 const loaderPath = path.resolve('tests/loaders/e2e-loader.mjs');
+
+const createRegisterImport = (targetLoaderPath) => {
+  const source = [
+    "import { register } from 'node:module';",
+    "import { pathToFileURL } from 'node:url';",
+    `register(${JSON.stringify(targetLoaderPath)}, pathToFileURL('./'));`,
+  ].join('\n');
+  return `data:text/javascript,${encodeURIComponent(source)}`;
+};
 
 const nodeArgs = [
   '--import',
   tsxImport,
-  '--experimental-loader',
-  loaderPath,
+  ...(supportsModuleRegister
+    ? ['--import', createRegisterImport(loaderPath)]
+    : ['--experimental-loader', loaderPath]),
   '--test',
   '--experimental-test-coverage',
   ...testFiles,

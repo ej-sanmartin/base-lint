@@ -43,14 +43,29 @@ if (testFiles.length === 0) {
   process.exit(1);
 }
 
+const { register: moduleRegister } = await import('node:module').catch(() => ({ register: undefined }));
+const supportsModuleRegister = typeof moduleRegister === 'function';
+
+const vitestLoaderPath = path.resolve('tests/loaders/vitest-loader.mjs');
+
+const createRegisterImport = (loaderPath) => {
+  const source = [
+    "import { register } from 'node:module';",
+    "import { pathToFileURL } from 'node:url';",
+    `register(${JSON.stringify(loaderPath)}, pathToFileURL('./'));`,
+  ].join('\n');
+  return `data:text/javascript,${encodeURIComponent(source)}`;
+};
+
 const nodeArgs = [
   '--import',
   'tsx',
+  ...(supportsModuleRegister
+    ? ['--import', createRegisterImport(vitestLoaderPath)]
+    : ['--experimental-loader', vitestLoaderPath]),
   '--test',
   '--experimental-test-coverage',
   '--experimental-test-module-mocks',
-  '--experimental-loader',
-  path.resolve('tests/loaders/vitest-loader.mjs'),
   ...testFiles,
 ];
 
