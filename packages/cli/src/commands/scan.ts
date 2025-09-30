@@ -3,8 +3,7 @@ import { globby } from 'globby';
 import { minimatch } from 'minimatch';
 import ignore from 'ignore';
 import { analyze } from '../core/analyze.js';
-import { createJsonReport } from '../core/reporters/json.js';
-import { createMarkdownReport } from '../core/reporters/markdown.js';
+import { formatReport } from '../core/formats/index.js';
 import { ensureDir, writeFile, writeJSON } from '../fs-helpers.js';
 import { resolveConfig } from '../config.js';
 import { getDiffFiles } from '../git-diff.js';
@@ -47,8 +46,9 @@ export async function runScanCommand(options: ScanCommandOptions): Promise<void>
   });
 
   await ensureDir(outputDir);
-  const markdownReport = createMarkdownReport(report);
-  await writeFile(path.join(outputDir, 'report.json'), createJsonReport(report));
+  const markdownReport = formatReport(report, { format: 'md' });
+  const jsonReport = formatReport(report, { format: 'json' });
+  await writeFile(path.join(outputDir, 'report.json'), jsonReport);
   await writeFile(path.join(outputDir, 'report.md'), markdownReport);
   await writeJSON(path.join(outputDir, 'meta.json'), {
     cliVersion: report.meta.cliVersion,
