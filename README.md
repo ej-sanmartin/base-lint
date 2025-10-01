@@ -6,7 +6,7 @@
 
 ![Baseline Shield Logo Thumbnail](assets/base-lint-thumbnail.png)
 
-Base Lint is an open-source toolkit that keeps your pull requests honest about modern web platform usage. It scans your repo (or just the diff) for CSS selectors and Web APIs, compares them against the [Baseline](https://web.dev/baseline/) dataset, and produces actionable reports. Use it locally, wire it into CI, or drop the GitHub Action into any workflow.
+Base Lint is an open-source toolkit that keeps your pull requests honest about modern web platform usage. It scans your repo (or just the diff) for CSS selectors and Web APIs, compares them against the [Baseline](https://web.dev/baseline/) dataset, and produces actionable reports. Baseline tracks which web features are widely supported across major browsers, helping you make informed decisions about browser compatibility. Use it locally, wire it into CI, or drop the GitHub Action into any workflow.
 
 > Uses Baseline data (`web-features`). Not affiliated with Google/web.dev/WebDX.
 
