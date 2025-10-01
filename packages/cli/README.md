@@ -18,6 +18,7 @@
   - [`base-lint enforce`](#base-lint-enforce)
   - [`base-lint annotate`](#base-lint-annotate)
   - [`base-lint comment`](#base-lint-comment)
+  - [`base-lint init`](#base-lint-init)
   - [`base-lint clean`](#base-lint-clean)
 - [Advanced usage](#advanced-usage)
   - [Configuration](#configuration)
@@ -64,6 +65,7 @@
 - [`base-lint enforce`](#base-lint-enforce) – Fail fast in CI when findings exceed your thresholds.
 - [`base-lint annotate`](#base-lint-annotate) – Upload inline GitHub Checks from the latest scan.
 - [`base-lint comment`](#base-lint-comment) – Maintain a sticky PR summary comment.
+- [`base-lint init`](#base-lint-init) – Scaffold config, ignore rules, and a starter GitHub Action.
 - [`base-lint clean`](#base-lint-clean) – Remove generated report artifacts between runs.
 
 ## Installation
@@ -106,10 +108,34 @@ By default the CLI outputs to `.base-lint-report/` in the current working direct
 | --- | --- | --- |
 | `--mode <mode>` | `diff` | Analysis mode (`diff` or `repo`). |
 | `--out <dir>` | `.base-lint-report` | Output directory for generated reports. |
+| `--out-format <format>` | `md` | Format for stdout or `--out-file` (`md`, `json`, or `sarif`). |
+| `--out-file <path>` | — | Write the formatted output to a single file instead of stdout. |
 | `--strict` | `false` | Enables strict feature detection. |
 | `--treat-newly <behavior>` | `warn` | Controls whether Newly findings warn, error, or are ignored. |
 | `--config <path>` | — | Override path to `base-lint.config.json`. |
 | `--print-full-report` | `false` | Prints the full Markdown report to stdout. |
+
+Combine `--out-format` and `--out-file` to generate SARIF for GitHub Advanced Security:
+
+```bash
+npx base-lint scan --mode=repo --out-format=sarif --out-file=.base-lint-report/report.sarif
+```
+
+Upload the SARIF artifact with [`github/codeql-action/upload-sarif`](https://github.com/github/codeql-action/tree/main/upload-sarif) so findings surface in **Security › Code scanning alerts**.
+
+Need to manually verify the formatter behavior? These commands cover the release acceptance criteria:
+
+```bash
+# Confirm SARIF output over stdout when no --out-file is passed.
+npx base-lint scan --out-format sarif | jq '.runs[0].results | length'
+
+# Confirm file emission when requesting JSON.
+npx base-lint scan --out-format json --out-file tmp/base-lint/report.json
+jq '.summary' tmp/base-lint/report.json
+
+# Confirm init overwrite semantics.
+npx base-lint init --force
+```
 
 Prefer to change these defaults globally? See [Configuration](#configuration).
 
@@ -189,6 +215,22 @@ The CLI reads the Markdown file, looks for `GITHUB_TOKEN`, `GITHUB_REPOSITORY`, 
 | `--sticky-marker <marker>` | `<!-- base-lint-sticky -->` | HTML marker used to find or create the sticky comment. |
 
 Prefer to change these defaults globally? See [Configuration](#configuration).
+
+### `base-lint init`
+
+Bootstrap a repository with sensible defaults for configuration, ignore rules, and CI wiring.
+
+```bash
+npx base-lint init
+```
+
+The command writes `base-lint.config.json`, `.base-lintignore`, and `.github/workflows/base-lint.yml` when they are absent. Existing files are preserved unless you re-run with `--force`, which overwrites them after logging the action so you can review the diff.
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--force` | `false` | Overwrite existing files instead of skipping them. |
+
+Add the generated files to version control once you have tailored them to your workflow.
 
 ### `base-lint clean`
 

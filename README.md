@@ -49,12 +49,15 @@ rule (for example, `base-lint-action-v1.0.0`).
 
 ```bash
 npm i -D base-lint
+npx base-lint init
 npx base-lint scan
 npx base-lint enforce
 # optional GitHub integrations
 npx base-lint annotate --input .base-lint-report/report.json
 npx base-lint comment --input .base-lint-report/report.md
 ```
+
+`base-lint init` scaffolds `base-lint.config.json`, `.base-lintignore`, and a starter GitHub Actions workflow. Re-run with `--force` to overwrite any existing files after reviewing diffs.
 
 `base-lint enforce` automatically reads `.base-lint-report/report.json`. If `scan` writes to a custom `--out`, pass the matching `--input` when enforcing (for example, `base-lint enforce --input custom-dir/report.json`).
 
@@ -69,6 +72,8 @@ on/README.md`](packages/action/README.md) for how the token is issued and why fo
 | --- | --- | --- | --- |
 | `scan` | `--mode <mode>` | `diff` | Analysis mode (`diff` or `repo`). |
 |  | `--out <dir>` | `.base-lint-report` | Output directory for generated reports. |
+|  | `--out-format <format>` | `md` | Format for stdout or `--out-file` (`md`, `json`, or `sarif`). |
+|  | `--out-file <path>` | — | Write the formatted output to a single file instead of stdout. |
 |  | `--strict` | `false` | Enables strict feature detection. |
 |  | `--treat-newly <behavior>` | `warn` | Controls whether Newly findings warn, error, or are ignored. |
 |  | `--config <path>` | — | Override path to `base-lint.config.json`. |
@@ -80,9 +85,41 @@ on/README.md`](packages/action/README.md) for how the token is issued and why fo
 |  | `--batch-size <n>` | `50` | Number of annotations sent per API request. |
 | `comment` | `--input <file>` | Required | Markdown report used for the sticky PR comment. |
 |  | `--sticky-marker <marker>` | `<!-- base-lint-sticky -->` | HTML marker for locating the sticky comment. |
+| `init` | `--force` | `false` | Overwrite generated config, ignore, and workflow files. |
 | `clean` | `--out <dir>` | `.base-lint-report` | Report directory to delete. |
 
 Prefer setting defaults once? Configure them in [`base-lint.config.json`](#configuration).
+
+### SARIF workflows
+
+Generate a SARIF report for GitHub Advanced Security by combining `--out-format` and `--out-file`:
+
+```bash
+npx base-lint scan --mode=repo --out-format=sarif --out-file=.base-lint-report/report.sarif
+```
+
+Upload the resulting file with [`github/codeql-action/upload-sarif`](https://github.com/github/codeql-action/tree/main/upload-sarif) so findings land in the **Security › Code scanning alerts** view:
+
+```yaml
+- name: Upload Base Lint SARIF
+  uses: github/codeql-action/upload-sarif@v3
+  with:
+    sarif_file: .base-lint-report/report.sarif
+```
+
+Need to double-check behavior manually? The snippets below satisfy the release acceptance criteria:
+
+```bash
+# Verify SARIF formatting and stdout fallback.
+npx base-lint scan --out-format sarif | jq '.runs[0].tool.driver.name'
+
+# Verify file emission when combining --out-format and --out-file.
+npx base-lint scan --out-format json --out-file tmp/base-lint/report.json
+cat tmp/base-lint/report.json | jq '.summary'
+
+# Re-run init and overwrite generated scaffolding.
+npx base-lint init --force
+```
 
 #### Exit codes
 
