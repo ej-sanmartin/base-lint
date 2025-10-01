@@ -2,7 +2,7 @@ import path from 'path';
 import { DEFAULT_IGNORE } from '../config.js';
 import { logger } from '../logger.js';
 import { writeFileIfAbsent } from '../fs-helpers.js';
-import actionPkg from '../../action/package.json' with { type: 'json' };
+import actionPkg from '../../../action/package.json' with { type: 'json' };
 
 interface InitCommandOptions {
   force?: boolean;
