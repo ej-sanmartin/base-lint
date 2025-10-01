@@ -1,0 +1,25 @@
+name: Base Lint
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ej-sanmartin/base-lint@base-lint-action-v1.0.1
+        with:
+          github-token: ${{ github.token }}
+          mode: diff
+          max-limited: 0
+          treat-newly-as: warn
+          comment: true
+          checks: true
