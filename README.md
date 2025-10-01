@@ -84,6 +84,18 @@ on/README.md`](packages/action/README.md) for how the token is issued and why fo
 
 Prefer setting defaults once? Configure them in [`base-lint.config.json`](#configuration).
 
+#### Exit codes
+
+`base-lint scan` and `base-lint enforce` share policy evaluation so CI can react consistently. Exit codes map to your Baseline
+thresholds:
+
+| Code | Meaning | Policy source |
+| --- | --- | --- |
+| `0` | Baseline policy satisfied. | All findings are within the configured thresholds. |
+| `1` | Limited findings exceeded the allowed maximum. | `maxLimited` from config or `--max-limited`. |
+| `2` | Newly findings treated as errors. | `treatNewlyAs: "error"` or `--fail-on-warn`. |
+| `3` | Internal error (unexpected failure). | Invalid input, missing reports, or unhandled exceptions. |
+
 ## Configuration
 
 Create an optional `base-lint.config.json` at the repository root:

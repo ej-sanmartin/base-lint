@@ -13,6 +13,7 @@ test('scan command respects ignore patterns from configuration', async (t) => {
       mode: 'repo',
       include: ['src/**/*.js'],
       ignore: ['src/ignored/'],
+      maxLimited: 1,
     },
     null,
     2,
@@ -78,4 +79,28 @@ test('scan command generates baseline reports in repo mode', async (t) => {
   assert.ok(result.stdout.includes('## Base Lint Report'));
   assert.ok(result.stdout.includes('**Status:**'));
   assert.ok(result.stdout.includes('WebUSB'));
+});
+
+test('scan command sets exit code when policy thresholds fail', async (t) => {
+  const { workspace, cleanup } = await createWorkspace({
+    'src/app.js': JS_SAMPLE,
+    'src/styles.css': CSS_SAMPLE,
+  });
+  t.after(cleanup);
+
+  const previousCwd = process.cwd();
+  process.chdir(workspace);
+  t.after(() => {
+    process.chdir(previousCwd);
+  });
+
+  const { runScanCommand } = await import('../../packages/cli/src/commands/scan.ts');
+  const previousExitCode = process.exitCode;
+  try {
+    process.exitCode = 0;
+    await runScanCommand({ mode: 'repo', out: '.base-lint-report' });
+    assert.equal(process.exitCode, 1, 'Limited findings should set exit code 1');
+  } finally {
+    process.exitCode = previousExitCode ?? undefined;
+  }
 });

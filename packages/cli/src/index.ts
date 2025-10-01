@@ -5,6 +5,7 @@ import { runCommentCommand } from './commands/comment.js';
 import { runAnnotateCommand } from './commands/annotate.js';
 import { runCleanCommand } from './commands/clean.js';
 import { DEFAULT_REPORT_DIRECTORY, DEFAULT_REPORT_PATH } from './constants.js';
+import { logger } from './logger.js';
 import pkg from '../package.json' with { type: 'json' };
 
 const program = new Command();
@@ -97,6 +98,6 @@ program.parseAsync().catch((error) => {
 
 function handleError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error);
-  console.error(message);
-  process.exitCode = 1;
+  logger.error(message);
+  process.exitCode = 3;
 }

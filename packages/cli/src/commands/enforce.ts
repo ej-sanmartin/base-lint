@@ -4,6 +4,8 @@ import { readJSON } from '../fs-helpers.js';
 import type { Report } from '../core/analyze.js';
 import { logger } from '../logger.js';
 import { DEFAULT_REPORT_PATH } from '../constants.js';
+import { evaluatePolicyExit } from '../core/policy/exit-codes.js';
+import type { TreatNewlyAs } from '../config.js';
 
 interface EnforceOptions {
   input?: string;
@@ -27,7 +29,7 @@ export async function runEnforceCommand(options: EnforceOptions): Promise<void> 
       logger.error(
         `No report found at ${DEFAULT_REPORT_PATH} — run \`base-lint scan\` first or pass --input`,
       );
-      process.exitCode = 1;
+      process.exitCode = 3;
       return;
     }
     throw error;
@@ -35,7 +37,6 @@ export async function runEnforceCommand(options: EnforceOptions): Promise<void> 
   const maxLimited = Number(options.maxLimited ?? 0);
   const limited = report.summary.limited;
   const newly = report.summary.newly;
-  const failOnWarn = options.failOnWarn ?? report.meta.treatNewlyAs === 'error';
 
   logger.info(`Report summary – Limited: ${limited}, Newly: ${newly}, Widely: ${report.summary.widely}`);
 
@@ -43,15 +44,23 @@ export async function runEnforceCommand(options: EnforceOptions): Promise<void> 
     throw new Error('Invalid max-limited value.');
   }
 
-  if (limited > maxLimited) {
-    logger.error(`Limited findings (${limited}) exceed the allowed maximum (${maxLimited}).`);
-    process.exitCode = 1;
-    return;
+  let treatNewlyAs: TreatNewlyAs = report.meta.treatNewlyAs;
+  if (options.failOnWarn === true) {
+    treatNewlyAs = 'error';
+  } else if (options.failOnWarn === false) {
+    treatNewlyAs = report.meta.treatNewlyAs === 'ignore' ? 'ignore' : 'warn';
   }
 
-  if (failOnWarn && newly > 0) {
-    logger.error(`Newly findings (${newly}) present and fail-on-warn is enabled.`);
-    process.exitCode = 1;
+  const policy = evaluatePolicyExit(report.summary, {
+    maxLimited,
+    treatNewlyAs,
+  });
+
+  if (policy.code !== 0) {
+    process.exitCode = policy.code;
+    if (policy.message) {
+      logger.error(policy.message);
+    }
     return;
   }
 
