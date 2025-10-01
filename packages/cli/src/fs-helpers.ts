@@ -10,6 +10,21 @@ export async function writeFile(filePath: string, contents: string): Promise<voi
   await fs.writeFile(filePath, contents, 'utf8');
 }
 
+export async function writeFileIfAbsent(
+  filePath: string,
+  contents: string,
+  options: { force?: boolean } = {}
+): Promise<'created' | 'overwritten' | 'skipped'> {
+  const shouldOverwrite = await fileExists(filePath);
+
+  if (shouldOverwrite && !options.force) {
+    return 'skipped';
+  }
+
+  await writeFile(filePath, contents);
+  return shouldOverwrite ? 'overwritten' : 'created';
+}
+
 export async function writeJSON(filePath: string, data: unknown): Promise<void> {
   await writeFile(filePath, JSON.stringify(data, null, 2));
 }
@@ -26,6 +41,18 @@ export async function readOptionalFile(filePath: string): Promise<string | null>
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
       return null;
+    }
+    throw error;
+  }
+}
+
+export async function fileExists(filePath: string): Promise<boolean> {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      return false;
     }
     throw error;
   }
