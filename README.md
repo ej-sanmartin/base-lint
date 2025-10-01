@@ -86,8 +86,8 @@ Prefer setting defaults once? Configure them in [`base-lint.config.json`](#confi
 
 #### Exit codes
 
-`base-lint scan` and `base-lint enforce` share policy evaluation so CI can react consistently. Exit codes map to your Baseline
-thresholds:
+`base-lint scan` and `base-lint enforce` share the same policy helper so CI can react consistently. When a policy fails the CLI
+prints a short explanation and sets a non-zero exit code that maps directly to your Baseline thresholds:
 
 | Code | Meaning | Policy source |
 | --- | --- | --- |
