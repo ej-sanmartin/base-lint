@@ -97,7 +97,10 @@ program.parseAsync().catch((error) => {
 });
 
 function handleError(error: unknown) {
-  const message = error instanceof Error ? error.message : String(error);
-  logger.error(message);
+  if (error instanceof Error) {
+    logger.error(error.stack ?? error.message);
+  } else {
+    logger.error(String(error));
+  }
   process.exitCode = 3;
 }

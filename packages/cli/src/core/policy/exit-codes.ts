@@ -2,8 +2,8 @@ import type { ReportSummary } from '../analyze.js';
 import type { TreatNewlyAs } from '../../config.js';
 
 export interface PolicyThresholds {
-  maxLimited: number;
-  treatNewlyAs: TreatNewlyAs;
+  maxLimited?: number | null;
+  treatNewlyAs?: TreatNewlyAs;
 }
 
 export interface PolicyExit {
@@ -12,7 +12,7 @@ export interface PolicyExit {
 }
 
 export function evaluatePolicyExit(summary: ReportSummary, thresholds: PolicyThresholds): PolicyExit {
-  const maxLimited = Number.isFinite(thresholds.maxLimited) ? thresholds.maxLimited : 0;
+  const maxLimited = Number.isFinite(thresholds.maxLimited ?? 0) ? thresholds.maxLimited ?? 0 : 0;
 
   if (summary.limited > maxLimited) {
     return {
@@ -21,7 +21,7 @@ export function evaluatePolicyExit(summary: ReportSummary, thresholds: PolicyThr
     };
   }
 
-  if (thresholds.treatNewlyAs === 'error' && summary.newly > 0) {
+  if ((thresholds.treatNewlyAs ?? 'warn') === 'error' && summary.newly > 0) {
     return {
       code: 2,
       message: `Newly findings (${summary.newly}) are treated as errors by policy.`,

@@ -137,7 +137,7 @@ Prefer to change these defaults globally? See [Configuration](#configuration).
 
 #### Exit codes
 
-`scan` and `enforce` share the same policy helper so automation can key off the exit code:
+`scan` and `enforce` share the same policy helper so automation can key off the exit code. When a policy fails the CLI prints a short explanation and sets a non-zero exit code that maps directly to your Baseline thresholds:
 
 | Code | Meaning | Policy source |
 | --- | --- | --- |
