@@ -19,6 +19,29 @@ test('enforce succeeds with default report path after scan', async (t) => {
   );
 });
 
+test('enforce exits with code 2 when Newly findings are treated as errors', async (t) => {
+  const { workspace, cleanup } = await createWorkspace({
+    'src/styles.css': '.card:has(.cta) { color: red; }\n',
+  });
+  t.after(cleanup);
+
+  await runCli(['scan', '--mode', 'repo'], { cwd: workspace });
+
+  await assert.rejects(
+    runCli(['enforce', '--fail-on-warn'], { cwd: workspace }),
+    (error) => {
+      assert.equal(error.message, 'enforce command exited with code 2');
+      assert.ok(
+        error.output.stderr.includes(
+          '[base-lint] Newly findings (1) are treated as errors by policy.',
+        ),
+        'stderr should describe the Newly failure',
+      );
+      return true;
+    },
+  );
+});
+
 test('enforce prints guidance when default report is missing', async (t) => {
   const { workspace, cleanup } = await createWorkspace({});
   t.after(cleanup);
@@ -26,7 +49,7 @@ test('enforce prints guidance when default report is missing', async (t) => {
   await assert.rejects(
     runCli(['enforce'], { cwd: workspace }),
     (error) => {
-      assert.equal(error.message, 'enforce command exited with code 1');
+      assert.equal(error.message, 'enforce command exited with code 3');
       assert.ok(error.output, 'output should be attached to the error');
       assert.ok(
         error.output.stderr.includes(

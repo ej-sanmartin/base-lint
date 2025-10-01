@@ -135,6 +135,17 @@ Prefer to change these defaults globally? See [Configuration](#configuration).
 
 > 📈 **CI usage:** Run `scan` once per workflow and reuse its artifacts in separate `enforce`, `annotate`, or `comment` jobs to avoid redundant analysis time.
 
+#### Exit codes
+
+`scan` and `enforce` share the same policy helper so automation can key off the exit code:
+
+| Code | Meaning | Policy source |
+| --- | --- | --- |
+| `0` | Baseline policy satisfied. | Findings remain within configured thresholds. |
+| `1` | Limited findings exceeded the allowed maximum. | `maxLimited` from config or `--max-limited`. |
+| `2` | Newly findings treated as errors. | `treatNewlyAs: "error"` or `--fail-on-warn`. |
+| `3` | Internal error (unexpected failure). | Invalid input, missing reports, or unhandled exceptions. |
+
 ### `base-lint annotate`
 
 Create or update a GitHub Check run with inline annotations from the scan.

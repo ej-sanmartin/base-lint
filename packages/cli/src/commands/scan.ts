@@ -13,6 +13,7 @@ import { formatMarkdownSummary } from '../core/reporters/summary.js';
 import pkg from '../../package.json' assert { type: 'json' };
 import { DEFAULT_REPORT_DIRECTORY } from '../constants.js';
 import type { ReportFormat } from '../core/formats/index.js';
+import { evaluatePolicyExit } from '../core/policy/exit-codes.js';
 
 interface ScanCommandOptions {
   mode?: string;
@@ -105,6 +106,18 @@ export async function runScanCommand(options: ScanCommandOptions): Promise<void>
   }
 
   logger.info(`Report written to ${outputDir}`);
+
+  const policy = evaluatePolicyExit(report.summary, {
+    maxLimited: config.maxLimited,
+    treatNewlyAs: config.treatNewlyAs,
+  });
+
+  if (policy.code !== 0) {
+    process.exitCode = policy.code;
+    if (policy.message) {
+      logger.error(policy.message);
+    }
+  }
 }
 
 async function collectFiles(
