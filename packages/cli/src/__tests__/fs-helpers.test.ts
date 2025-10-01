@@ -5,7 +5,15 @@ import { mkdtemp, readFile, rm, stat } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
-import { ensureDir, writeFile, writeJSON, readJSON, readOptionalFile } from '../fs-helpers.js';
+import {
+  ensureDir,
+  writeFile,
+  writeJSON,
+  readJSON,
+  readOptionalFile,
+  writeFileIfAbsent,
+  fileExists,
+} from '../fs-helpers.js';
 
 test('ensureDir creates nested directories', async (t) => {
   const dir = await createTempDir(t);
@@ -43,6 +51,36 @@ test('readOptionalFile handles missing and existing files', async (t) => {
   await writeFile(presentPath, 'value');
   const present = await readOptionalFile(presentPath);
   assert.equal(present, 'value');
+});
+
+test('writeFileIfAbsent respects force option and preserves existing content', async (t) => {
+  const dir = await createTempDir(t);
+  const filePath = path.join(dir, 'config.json');
+
+  const initial = await writeFileIfAbsent(filePath, 'first');
+  assert.equal(initial, 'created');
+  let contents = await readFile(filePath, 'utf8');
+  assert.equal(contents, 'first');
+
+  const skipped = await writeFileIfAbsent(filePath, 'second');
+  assert.equal(skipped, 'skipped');
+  contents = await readFile(filePath, 'utf8');
+  assert.equal(contents, 'first');
+
+  const forced = await writeFileIfAbsent(filePath, 'third', { force: true });
+  assert.equal(forced, 'overwritten');
+  contents = await readFile(filePath, 'utf8');
+  assert.equal(contents, 'third');
+});
+
+test('fileExists returns whether a path exists', async (t) => {
+  const dir = await createTempDir(t);
+  const missingPath = path.join(dir, 'missing.txt');
+  const presentPath = path.join(dir, 'present.txt');
+
+  assert.equal(await fileExists(missingPath), false);
+  await writeFile(presentPath, 'hi');
+  assert.equal(await fileExists(presentPath), true);
 });
 
 async function createTempDir(t: TestContext) {

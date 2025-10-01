@@ -34,7 +34,7 @@ const DEFAULT_CONFIG: BaseLintConfig = {
   ignore: [],
 };
 
-const DEFAULT_IGNORE = ['node_modules/', 'dist/', 'build/', 'coverage/', '*.min.js'];
+export const DEFAULT_IGNORE = ['node_modules/', 'dist/', 'build/', 'coverage/', '*.min.js'];
 
 export async function resolveConfig(
   cwd: string,

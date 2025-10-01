@@ -4,6 +4,7 @@ import { runEnforceCommand } from './commands/enforce.js';
 import { runCommentCommand } from './commands/comment.js';
 import { runAnnotateCommand } from './commands/annotate.js';
 import { runCleanCommand } from './commands/clean.js';
+import { runInitCommand } from './commands/init.js';
 import { DEFAULT_REPORT_DIRECTORY, DEFAULT_REPORT_PATH } from './constants.js';
 import { logger } from './logger.js';
 import pkg from '../package.json' with { type: 'json' };
@@ -14,6 +15,18 @@ program
   .name('base-lint')
   .description('Baseline-aware linting for modern web platform features')
   .version(pkg.version ?? '0.0.0');
+
+program
+  .command('init')
+  .description('Generate base-lint config, ignore file, and GitHub workflow scaffolding')
+  .option('--force', 'overwrite existing files')
+  .action(async (options) => {
+    try {
+      await runInitCommand(options);
+    } catch (error) {
+      handleError(error);
+    }
+  });
 
 program
   .command('scan')
