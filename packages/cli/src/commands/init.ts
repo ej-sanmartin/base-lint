@@ -26,13 +26,13 @@ const DEFAULT_CONFIG_CONTENT = `${JSON.stringify(
 const DEFAULT_IGNORE_CONTENT = `${DEFAULT_IGNORE.join('\n')}\n`;
 
 function createWorkflowContent(actionVersion: string): string {
-  return `name: Base Lint\n\non:\n  pull_request:\n\npermissions:\n  contents: read\n  pull-requests: write\n  checks: write\n\njobs:\n  base-lint:\n    runs-on: ubuntu-latest\n    steps:\n      - name: Check out repository\n        uses: actions/checkout@v4\n        with:\n          fetch-depth: 0\n      - name: Run base-lint scan\n        run: npx --yes base-lint scan --out-format md --out-file base-lint-report.md\n      - name: Upload base-lint report\n        uses: actions/upload-artifact@v4\n        with:\n          name: base-lint-report\n          path: base-lint-report.md\n      - name: Publish base-lint feedback\n        uses: ej-sanmartin/base-lint@${actionVersion}\n        with:\n          github-token: \${{ secrets.GITHUB_TOKEN }}\n`;
+  return `name: Base Lint\n\non:\n  pull_request:\n\npermissions:\n  contents: read\n  pull-requests: write\n  checks: write\n\njobs:\n  baseline:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          fetch-depth: 0\n      - uses: ej-sanmartin/base-lint@base-lint-action-v${actionVersion}\n        with:\n          github-token: \${{ github.token }}\n          mode: diff\n          max-limited: 0\n          treat-newly-as: warn\n          comment: true\n          checks: true\n`;
 }
 
 export async function runInitCommand(options: InitCommandOptions = {}): Promise<void> {
   const cwd = process.cwd();
   const force = Boolean(options.force);
-  const actionVersion = `base-lint-action-v${actionPkg.version ?? '1.0.0'}`;
+  const actionVersion = actionPkg.version ?? '1.0.0';
 
   const targets = [
     {
