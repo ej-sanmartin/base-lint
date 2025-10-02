@@ -32,7 +32,7 @@ function createWorkflowContent(actionVersion: string): string {
 export async function runInitCommand(options: InitCommandOptions = {}): Promise<void> {
   const cwd = process.cwd();
   const force = Boolean(options.force);
-  const actionVersion = actionPkg.version ?? '1.0.0';
+  const actionVersion = actionPkg.version ?? '1.1.0';
 
   const targets = [
     {

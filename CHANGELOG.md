@@ -1,5 +1,11 @@
 # Changelog
 
+## base-lint-action v1.1.0 - 2024-04-05
+
+- **Optional npm caching.** Added `cache` and `cache-key` inputs to the GitHub Action so workflows can restore and save npm
+  directories between runs. The default key now includes the bundled CLI version (`base-lint-cli-${version}`) to bust stale
+  caches on release.
+
 ## v1.1.0 - 2024-04-05
 
 - **SARIF support.** `base-lint scan` can now emit SARIF alongside Markdown and JSON so teams can upload findings to GitHub Advanced Security code scanning. The formatter pipeline was refactored to share implementation between stdout and file output.
