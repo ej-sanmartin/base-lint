@@ -124,7 +124,7 @@ var import_url = require("url");
 // ../cli/package.json
 var package_default = {
   name: "base-lint",
-  version: "1.1.2",
+  version: "1.2.0",
   description: "Lint your repo against Web Baseline policies",
   license: "MIT",
   bugs: {
