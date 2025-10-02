@@ -36,9 +36,15 @@ jobs:
           treat-newly-as: warn
           comment: true
           checks: true
+          cache: true
 ```
 
 Diff mode needs the base commit to be present locally, so configure `actions/checkout` with `fetch-depth: 0` (or switch Base Lint to `mode: repo`) to avoid fetching only the latest commit. Without the deeper history, Base Lint falls back to scanning nothing and reports “No files matched the scan configuration.”
+
+Enabling `cache: true` reuses the npm directories Base Lint touches on every run (`~/.npm/_cacache` and `~/.npm/_npx`). The
+action automatically derives a cache key from the bundled CLI version (`base-lint-cli-${version}`) so new releases invalidate
+old entries. Override the key with `cache-key` when you need to segment caches (for example, by operating system), but include
+the CLI version in the string to keep release upgrades busting stale data.
 
 The GitHub Action metadata now lives at the repository root in [`action.yml`](./action.yml) while the compiled bundle continues
 to ship from [`packages/action/dist`](packages/action/dist). Build and commit the bundle whenever you update the TypeScript
