@@ -20,6 +20,11 @@ inputs:
   checks:
     description: 'Publish GitHub check annotations'
     default: 'true'
+  cache:
+    description: 'Cache npm artifacts between runs to speed up base-lint invocations'
+    default: 'false'
+  cache-key:
+    description: 'Override the cache key (defaults to base-lint-cli-${version})'
 runs:
   using: 'node20'
   main: 'packages/action/dist/index.js'
