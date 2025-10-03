@@ -10,6 +10,8 @@ Base Lint is an open-source toolkit that keeps your pull requests honest about m
 
 > Uses Baseline data (`web-features`). Not affiliated with Google/web.dev/WebDX.
 
+<a href="https://www.producthunt.com/products/base-lint?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-base&#0045;lint" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1022721&theme=neutral&t=1759519544700" alt="Base&#0032;Lint - Lint&#0032;modern&#0032;web&#0032;APIs&#0032;for&#0032;cross&#0045;browser&#0032;safety&#0046; | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+
 ## Quickstart
 
 ### GitHub Action
