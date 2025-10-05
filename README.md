@@ -70,9 +70,7 @@ npx base-lint comment --input .base-lint-report/report.md
 `base-lint enforce` automatically reads `.base-lint-report/report.json`. If `scan` writes to a custom `--out`, pass the matching `--input` when enforcing (for example, `base-lint enforce --input custom-dir/report.json`).
 
 > ℹ️ **GitHub Actions context:** `base-lint annotate` and `base-lint comment` assume they are running inside GitHub Actions wher
-e `GITHUB_TOKEN`, `GITHUB_REPOSITORY`, `GITHUB_EVENT_NAME`, and `GITHUB_SHA` are automatically provided. Other CI or local enviro
-nments must supply equivalent environment variables securely (see the [GitHub Action example](#github-action) or [`packages/acti
-on/README.md`](packages/action/README.md) for how the token is issued and why forked pull requests are skipped).
+e `GITHUB_TOKEN`, `GITHUB_REPOSITORY`, `GITHUB_EVENT_NAME`, and `GITHUB_SHA` are automatically provided. Other CI or local environments must supply equivalent environment variables securely (see the [GitHub Action example](#github-action) or [`packages/action/README.md`](packages/action/README.md) for how the token is issued and why forked pull requests are skipped).
 
 `base-lint scan` prints a condensed Markdown summary to stdout after writing the reports. Pass `--print-full-report` or open `.base-lint-report/report.md` for the full table when you need additional context.
 
