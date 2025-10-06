@@ -1,5 +1,13 @@
 # Changelog
 
+## base-lint-action v1.1.3 - October 6th, 2025
+
+- **Fixed annotations and comments.** The action now properly wraps the `scan` command in a try-catch block, allowing annotations and sticky comments to be published even when violations are found. Previously, the action would terminate early when scan exited with code 1, preventing annotations and comments from being created.
+
+## base-lint-action v1.1.2 - October 6th, 2025
+
+- **Rebuilt dist after cache removal.** Fixed bundled action that was still referencing removed `@actions/cache` dependency.
+
 ## base-lint-action v1.1.1 & npm base-lint v1.2.1 - October 6th, 2025
 
 - **Removed caching.** Ballooned bundle size by 300x for a micro optimization. Removed to reduce bloat, complexity.

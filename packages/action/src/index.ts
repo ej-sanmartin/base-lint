@@ -38,7 +38,13 @@ async function main(): Promise<void> {
     const reportJson = path.join(reportDir, 'report.json');
     const reportMd = path.join(reportDir, 'report.md');
 
-    await runBaseLint(['scan', '--mode', mode, '--out', reportDir, '--treat-newly', treatNewlyAs]);
+    try {
+      await runBaseLint(['scan', '--mode', mode, '--out', reportDir, '--treat-newly', treatNewlyAs]);
+    } catch (error) {
+      // Scan may exit non-zero when it finds violations, but the report is still generated.
+      // We'll let enforce handle the actual failure logic.
+      core.info('Scan completed with findings. Report generated successfully.');
+    }
 
     let enforcementFailed = false;
     try {

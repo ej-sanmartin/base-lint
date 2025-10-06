@@ -143,7 +143,11 @@ async function main() {
     const reportDir = ".base-lint-report";
     const reportJson = import_path.default.join(reportDir, "report.json");
     const reportMd = import_path.default.join(reportDir, "report.md");
-    await runBaseLint(["scan", "--mode", mode, "--out", reportDir, "--treat-newly", treatNewlyAs]);
+    try {
+      await runBaseLint(["scan", "--mode", mode, "--out", reportDir, "--treat-newly", treatNewlyAs]);
+    } catch (error2) {
+      info("Scan completed with findings. Report generated successfully.");
+    }
     let enforcementFailed = false;
     try {
       const enforceArgs = ["enforce", "--input", reportJson, "--max-limited", maxLimited];
