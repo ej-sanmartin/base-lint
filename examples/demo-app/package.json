@@ -9,6 +9,6 @@
     "clean": "base-lint clean"
   },
   "devDependencies": {
-    "base-lint": "^1.2.0"
+    "base-lint": "^1.2.1"
   }
 }
