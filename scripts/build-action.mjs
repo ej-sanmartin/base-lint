@@ -22,7 +22,6 @@ await build({
   target: ['node18'],
   outfile: path.join(distDir, 'index.js'),
   sourcemap: false,
-  external: ['@actions/cache'],
   plugins: [
     {
       name: 'virtual-actions-modules',

@@ -1,10 +1,8 @@
-import * as cache from '@actions/cache';
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { spawn } from 'child_process';
 import path from 'path';
 import { pathToFileURL } from 'url';
-import baseLintPackageJson from '../../cli/package.json' assert { type: 'json' };
 
 type RunBaseLintDeps = {
   core?: Pick<typeof core, 'info'>;
@@ -12,26 +10,6 @@ type RunBaseLintDeps = {
 };
 
 let missingTokenWarningIssued = false;
-
-const BUNDLED_CLI_VERSION = (baseLintPackageJson as { version?: string }).version ?? '';
-const DEFAULT_CACHE_KEY = BUNDLED_CLI_VERSION ? `base-lint-cli-${BUNDLED_CLI_VERSION}` : undefined;
-
-function resolveCachePaths(): string[] {
-  const homeDir = process.env.HOME ?? process.env.USERPROFILE;
-  if (!homeDir) {
-    return [];
-  }
-
-  return [path.join(homeDir, '.npm', '_cacache'), path.join(homeDir, '.npm', '_npx')];
-}
-
-function resolveCacheKey(inputKey: string | undefined): string | undefined {
-  if (inputKey) {
-    return inputKey;
-  }
-
-  return DEFAULT_CACHE_KEY;
-}
 
 function resolveGithubToken(): string | undefined {
   const inputToken = core.getInput('github-token');
@@ -55,39 +33,6 @@ async function main(): Promise<void> {
     const treatNewlyAs = core.getInput('treat-newly-as') || 'warn';
     const shouldComment = core.getBooleanInput('comment');
     const shouldAnnotate = core.getBooleanInput('checks');
-    const shouldCache = core.getBooleanInput('cache');
-    const cacheKeyInput = core.getInput('cache-key');
-    const resolvedCacheKey = resolveCacheKey(cacheKeyInput || undefined);
-    const cachePaths = resolveCachePaths();
-
-    const cacheFeatureAvailable =
-      typeof cache.isFeatureAvailable === 'function' ? cache.isFeatureAvailable() : false;
-    const cachingEnabled = Boolean(
-      shouldCache && resolvedCacheKey && cachePaths.length > 0 && cacheFeatureAvailable
-    );
-
-    if (shouldCache && !resolvedCacheKey) {
-      core.info('Caching requested but no cache key resolved. Skipping restore.');
-    } else if (shouldCache && cachePaths.length === 0) {
-      core.info('Caching requested but no cache paths resolved. Skipping restore.');
-    } else if (shouldCache && !cacheFeatureAvailable) {
-      core.info('Caching requested but the feature is unavailable on this runner. Skipping restore.');
-    }
-
-    let restoredCacheKey: string | undefined;
-
-    if (cachingEnabled) {
-      try {
-        restoredCacheKey = await cache.restoreCache(cachePaths, resolvedCacheKey!);
-        if (restoredCacheKey) {
-          core.info(`Restored npm cache with key ${restoredCacheKey}.`);
-        } else {
-          core.info(`No npm cache found for key ${resolvedCacheKey}.`);
-        }
-      } catch (error) {
-        core.warning(`Failed to restore npm cache: ${(error as Error).message}`);
-      }
-    }
 
     const reportDir = '.base-lint-report';
     const reportJson = path.join(reportDir, 'report.json');
@@ -136,21 +81,6 @@ async function main(): Promise<void> {
 
     if (enforcementFailed) {
       core.setFailed('Baseline policy violated. See report for details.');
-    }
-
-    if (cachingEnabled && !restoredCacheKey) {
-      try {
-        await cache.saveCache(cachePaths, resolvedCacheKey!);
-        core.info(`Saved npm cache with key ${resolvedCacheKey}.`);
-      } catch (error) {
-        if (error instanceof cache.ReserveCacheError || error instanceof cache.ValidationError) {
-          core.info(`Skipping cache save: ${(error as Error).message}`);
-        } else if ((error as Error).message?.includes('Cache already exists')) {
-          core.info(`Skipping cache save: ${(error as Error).message}`);
-        } else {
-          core.warning(`Failed to save npm cache: ${(error as Error).message}`);
-        }
-      }
     }
   } catch (error) {
     core.setFailed((error as Error).message);

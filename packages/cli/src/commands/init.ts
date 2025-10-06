@@ -26,7 +26,7 @@ const DEFAULT_CONFIG_CONTENT = `${JSON.stringify(
 const DEFAULT_IGNORE_CONTENT = `${DEFAULT_IGNORE.join('\n')}\n`;
 
 function createWorkflowContent(actionVersion: string): string {
-  return `name: Base Lint\n\non:\n  pull_request:\n\npermissions:\n  contents: read\n  pull-requests: write\n  checks: write\n\njobs:\n  baseline:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          fetch-depth: 0\n      - uses: ej-sanmartin/base-lint@base-lint-action-v${actionVersion}\n        with:\n          github-token: \${{ github.token }}\n          mode: diff\n          max-limited: 0\n          treat-newly-as: warn\n          comment: true\n          checks: true\n          cache: true\n`;
+  return `name: Base Lint\n\non:\n  pull_request:\n\npermissions:\n  contents: read\n  pull-requests: write\n  checks: write\n\njobs:\n  baseline:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          fetch-depth: 0\n      - uses: ej-sanmartin/base-lint@base-lint-action-v${actionVersion}\n        with:\n          github-token: \${{ github.token }}\n          mode: diff\n          max-limited: 0\n          treat-newly-as: warn\n          comment: true\n          checks: true\n`;
 }
 
 export async function runInitCommand(options: InitCommandOptions = {}): Promise<void> {

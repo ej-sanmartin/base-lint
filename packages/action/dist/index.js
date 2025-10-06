@@ -33,7 +33,6 @@ __export(index_exports, {
   runBaseLint: () => runBaseLint
 });
 module.exports = __toCommonJS(index_exports);
-var cache = __toESM(require("@actions/cache"));
 
 // virtual:@actions/core
 var core_exports = {};
@@ -120,95 +119,8 @@ var context = {
 var import_child_process = require("child_process");
 var import_path = __toESM(require("path"));
 var import_url = require("url");
-
-// ../cli/package.json
-var package_default = {
-  name: "base-lint",
-  version: "1.2.0",
-  description: "Lint your repo against Web Baseline policies",
-  license: "MIT",
-  bugs: {
-    url: "https://github.com/ej-sanmartin/base-lint/issues"
-  },
-  homepage: "https://github.com/web-baseline/base-lint#readme",
-  repository: {
-    type: "git",
-    url: "https://github.com/ej-sanmartin/base-lint",
-    directory: "packages/cli"
-  },
-  funding: {
-    type: "individual",
-    url: "https://Ko-fi.com/esanmartin"
-  },
-  type: "module",
-  bin: {
-    "base-lint": "dist/index.js"
-  },
-  files: [
-    "dist"
-  ],
-  imports: {
-    vitest: "../../tests/mocks/vitest.js"
-  },
-  scripts: {
-    build: "tsup --config tsup.config.ts",
-    dev: "tsx src/index.ts --help",
-    prepublishOnly: "npm run build"
-  },
-  dependencies: {
-    "@typescript-eslint/typescript-estree": "^6.21.0",
-    commander: "^11.1.0",
-    globby: "^13.2.2",
-    ignore: "^5.3.1",
-    minimatch: "^9.0.3",
-    "node-html-parser": "^6.1.11",
-    picocolors: "^1.0.0",
-    postcss: "^8.4.35",
-    "web-features": "^2.0.0"
-  },
-  devDependencies: {
-    "@types/node": "^20.11.30",
-    tsup: "^8.0.1",
-    tsx: "^4.7.1",
-    typescript: "^5.4.2"
-  },
-  keywords: [
-    "lint",
-    "baseline",
-    "eslint",
-    "stylelint",
-    "typescript",
-    "javascript",
-    "css",
-    "cli",
-    "ci",
-    "bot",
-    "static-analysis",
-    "code-quality",
-    "code-style",
-    "automation",
-    "best-practices"
-  ]
-};
-
-// src/index.ts
 var import_meta = {};
 var missingTokenWarningIssued = false;
-var BUNDLED_CLI_VERSION = package_default.version ?? "";
-var DEFAULT_CACHE_KEY = BUNDLED_CLI_VERSION ? `base-lint-cli-${BUNDLED_CLI_VERSION}` : void 0;
-function resolveCachePaths() {
-  const homeDir = process.env.HOME ?? process.env.USERPROFILE;
-  if (!homeDir) {
-    return [];
-  }
-  return [import_path.default.join(homeDir, ".npm", "_cacache"), import_path.default.join(homeDir, ".npm", "_npx")];
-}
-function resolveCacheKey(inputKey) {
-  if (inputKey) {
-    return inputKey;
-  }
-  return DEFAULT_CACHE_KEY;
-}
 function resolveGithubToken() {
   const inputToken = getInput("github-token");
   const envToken = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
@@ -228,34 +140,6 @@ async function main() {
     const treatNewlyAs = getInput("treat-newly-as") || "warn";
     const shouldComment = getBooleanInput("comment");
     const shouldAnnotate = getBooleanInput("checks");
-    const shouldCache = getBooleanInput("cache");
-    const cacheKeyInput = getInput("cache-key");
-    const resolvedCacheKey = resolveCacheKey(cacheKeyInput || void 0);
-    const cachePaths = resolveCachePaths();
-    const cacheFeatureAvailable = typeof cache.isFeatureAvailable === "function" ? cache.isFeatureAvailable() : false;
-    const cachingEnabled = Boolean(
-      shouldCache && resolvedCacheKey && cachePaths.length > 0 && cacheFeatureAvailable
-    );
-    if (shouldCache && !resolvedCacheKey) {
-      info("Caching requested but no cache key resolved. Skipping restore.");
-    } else if (shouldCache && cachePaths.length === 0) {
-      info("Caching requested but no cache paths resolved. Skipping restore.");
-    } else if (shouldCache && !cacheFeatureAvailable) {
-      info("Caching requested but the feature is unavailable on this runner. Skipping restore.");
-    }
-    let restoredCacheKey;
-    if (cachingEnabled) {
-      try {
-        restoredCacheKey = await cache.restoreCache(cachePaths, resolvedCacheKey);
-        if (restoredCacheKey) {
-          info(`Restored npm cache with key ${restoredCacheKey}.`);
-        } else {
-          info(`No npm cache found for key ${resolvedCacheKey}.`);
-        }
-      } catch (error2) {
-        warning(`Failed to restore npm cache: ${error2.message}`);
-      }
-    }
     const reportDir = ".base-lint-report";
     const reportJson = import_path.default.join(reportDir, "report.json");
     const reportMd = import_path.default.join(reportDir, "report.md");
@@ -297,20 +181,6 @@ async function main() {
     }
     if (enforcementFailed) {
       setFailed("Baseline policy violated. See report for details.");
-    }
-    if (cachingEnabled && !restoredCacheKey) {
-      try {
-        await cache.saveCache(cachePaths, resolvedCacheKey);
-        info(`Saved npm cache with key ${resolvedCacheKey}.`);
-      } catch (error2) {
-        if (error2 instanceof cache.ReserveCacheError || error2 instanceof cache.ValidationError) {
-          info(`Skipping cache save: ${error2.message}`);
-        } else if (error2.message?.includes("Cache already exists")) {
-          info(`Skipping cache save: ${error2.message}`);
-        } else {
-          warning(`Failed to save npm cache: ${error2.message}`);
-        }
-      }
     }
   } catch (error2) {
     setFailed(error2.message);
